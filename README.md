@@ -1,4 +1,17 @@
-# laya-triage
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/banner-dark.png">
+    <img alt="laya-triage: free, local AI triage for GitHub issues and pull requests" src="docs/banner-light.png">
+  </picture>
+</p>
+
+<p align="center">
+  <a href="https://github.com/elnachto/laya-triage/tags"><img alt="Version" src="https://img.shields.io/github/v/tag/elnachto/laya-triage?color=6B3FE7&label=version"></a>
+  <img alt="License Apache 2.0" src="https://img.shields.io/badge/license-Apache%202.0-16141F">
+  <img alt="Runs in your runner" src="https://img.shields.io/badge/runs-in%20your%20runner-2E9E68">
+  <img alt="No API key" src="https://img.shields.io/badge/API%20key-not%20needed-F2644B">
+  <a href="https://github.com/NandhaKishorM/laya"><img alt="Powered by Laya" src="https://img.shields.io/badge/powered%20by-Laya-6B3FE7"></a>
+</p>
 
 
 
@@ -14,10 +27,10 @@ laya-triage is a GitHub Action that reads every new issue and pull request in yo
 
 | Event | Decision | Result |
 |---|---|---|
-| New issue | Type: bug, feature, question, docs or other | Adds `bug`, `enhancement`, `question`, `documentation` or `chore` |
-| New issue | Low confidence | Adds `needs-triage` for a human to review |
-| New bug report | Key details are missing | Adds `needs-more-info` and asks for steps, version and expected behavior |
-| New pull request | Trivial change that looks like spam | Adds `spam-probable` and leaves a polite comment |
+| New issue | Type: bug, feature, question, docs or other | ![bug](https://img.shields.io/badge/bug-F2644B) ![enhancement](https://img.shields.io/badge/enhancement-2E9E68) ![question](https://img.shields.io/badge/question-6B3FE7) ![documentation](https://img.shields.io/badge/documentation-16141F) ![chore](https://img.shields.io/badge/chore-9C98AE) |
+| New issue | Low confidence | ![needs-triage](https://img.shields.io/badge/needs--triage-9C98AE) for a human to review |
+| New bug report | Key details are missing | ![needs-more-info](https://img.shields.io/badge/needs--more--info-6B3FE7) and a comment asking for steps, version and expected behavior |
+| New pull request | Trivial change that looks like spam | ![spam-probable](https://img.shields.io/badge/spam--probable-9C98AE) and a polite comment |
 
 laya-triage does not close issues or pull requests. Maintainers keep full control over decisions.
 
