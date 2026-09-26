@@ -1,0 +1,9 @@
+{
+  "action": "opened",
+  "issue": {
+    "number": 1,
+    "title": "App crashes when uploading a photo on Android 14",
+    "body": "Steps: 1) open profile 2) tap upload 3) pick any jpg. The app closes instantly. Version 2.3.1, Pixel 7. Logcat attached.",
+    "user": {"login": "usuario1"}
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "action": "opened",
+  "issue": {
+    "number": 3,
+    "title": "¿Cómo configuro la base de datos?",
+    "body": "No entiendo cómo conectar PostgreSQL, ¿hay algún ejemplo?",
+    "user": {"login": "usuario3"}
+  }
+}

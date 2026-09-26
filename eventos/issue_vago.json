@@ -1,0 +1,9 @@
+{
+  "action": "opened",
+  "issue": {
+    "number": 2,
+    "title": "doesnt work",
+    "body": "it doesnt work pls fix",
+    "user": {"login": "usuario2"}
+  }
+}

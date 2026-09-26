@@ -1,0 +1,12 @@
+{
+  "action": "opened",
+  "pull_request": {
+    "number": 5,
+    "title": "Fix crash when uploading photos on Android 14",
+    "body": "The upload handler was not checking storage permissions on Android 14. Added the permission request and a fallback. Fixes #1.",
+    "changed_files": 3,
+    "additions": 42,
+    "deletions": 7,
+    "user": {"login": "usuario5"}
+  }
+}
