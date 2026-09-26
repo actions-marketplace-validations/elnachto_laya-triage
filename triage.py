@@ -10,7 +10,8 @@ from preguntas import PREGUNTAS_ISSUE, PREGUNTAS_PR
 
 UMBRAL_TIPO = 0.60
 UMBRAL_INFO = 0.75
-UMBRAL_SPAM = 0.85
+UMBRAL_SPAM = 0.70
+MAX_LINEAS_TRIVIAL = 5
 
 ETIQUETAS_TIPO = {
     "bug": "bug",
@@ -66,7 +67,7 @@ def decidir_issue(respuestas):
 
 def es_cambio_trivial(pr):
     lineas = pr.get("additions", 0) + pr.get("deletions", 0)
-    return pr.get("changed_files", 0) <= 1 and lineas <= 3
+    return pr.get("changed_files", 0) <= 1 and lineas <= MAX_LINEAS_TRIVIAL
 
 
 def decidir_pr(pr, respuestas):
@@ -140,6 +141,10 @@ def main():
         },
     }
     print(json.dumps(resumen, indent=2, ensure_ascii=False))
+
+    if not etiquetas and not comentario:
+        print("No hay nada que aplicar")
+        return
 
     modo_prueba = os.environ.get("LAYA_DRY_RUN", "true").strip().lower() != "false"
     if modo_prueba:
