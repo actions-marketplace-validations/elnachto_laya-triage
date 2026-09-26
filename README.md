@@ -1,5 +1,11 @@
 # laya-triage
 
+
+
+https://github.com/user-attachments/assets/a929519a-85ff-467b-9dc3-f49538046d64
+
+
+
 Free, local AI triage solution for GitHub issues and pull requests.
 
 laya-triage is a GitHub Action that reads every new issue and pull request in your repos, labels them, requests missing details, and flags low-effort and spam content. It runs the [Laya](https://github.com/NandhaKishorM/laya) decision model inside your GitHub Actions runner: no API key, no external service, and nothing leaves GitHub.
