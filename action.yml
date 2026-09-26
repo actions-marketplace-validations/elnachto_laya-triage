@@ -1,0 +1,27 @@
+name: "Laya Triage"
+description: "Free, local AI triage for issues and pull requests using the open Laya decision model"
+branding:
+  icon: "tag"
+  color: "purple"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - uses: actions/cache@v4
+      with:
+        path: ~/.cache/huggingface
+        key: laya-models-0.3.20
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        pip install torch --index-url https://download.pytorch.org/whl/cpu
+        pip install -r "${{ github.action_path }}/requirements.txt"
+
+    - name: Run triage
+      shell: bash
+      run: python "${{ github.action_path }}/triage.py"
