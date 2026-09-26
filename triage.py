@@ -1,6 +1,8 @@
 import json
 import os
 import sys
+import urllib.error
+import urllib.request
 
 from laya import Router
 
@@ -26,6 +28,12 @@ COMENTARIO_INFO = (
 COMENTARIO_SPAM = (
     "This pull request looks like a very small change without a clear purpose. "
     "A maintainer will review it. If it is a real contribution, please describe what it fixes or improves."
+)
+
+FIRMA = (
+    "\n\n---\n"
+    "<sub>Automated triage by [laya-triage](https://github.com/elnachto/laya-triage). "
+    "A maintainer will review this.</sub>"
 )
 
 
@@ -70,6 +78,36 @@ def decidir_pr(pr, respuestas):
     return [], None
 
 
+def llamar_api(metodo, ruta, datos):
+    token = os.environ.get("GITHUB_TOKEN")
+    if not token:
+        sys.exit("Falta GITHUB_TOKEN para escribir en GitHub")
+
+    peticion = urllib.request.Request(
+        f"https://api.github.com{ruta}",
+        data=json.dumps(datos).encode("utf-8"),
+        method=metodo,
+        headers={
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {token}",
+            "User-Agent": "laya-triage",
+        },
+    )
+    try:
+        with urllib.request.urlopen(peticion) as respuesta:
+            return json.load(respuesta)
+    except urllib.error.HTTPError as error:
+        detalle = error.read().decode("utf-8", errors="replace")
+        sys.exit(f"Error {error.code} en {metodo} {ruta}: {detalle}")
+
+
+def aplicar_cambios(repo, numero, etiquetas, comentario):
+    if etiquetas:
+        llamar_api("POST", f"/repos/{repo}/issues/{numero}/labels", {"labels": etiquetas})
+    if comentario:
+        llamar_api("POST", f"/repos/{repo}/issues/{numero}/comments", {"body": comentario + FIRMA})
+
+
 def main():
     evento = cargar_evento()
     router = Router(default="multilingual")
@@ -102,6 +140,15 @@ def main():
         },
     }
     print(json.dumps(resumen, indent=2, ensure_ascii=False))
+
+    modo_prueba = os.environ.get("LAYA_DRY_RUN", "true").strip().lower() != "false"
+    if modo_prueba:
+        print("Modo dry-run: no se aplicó ningún cambio")
+        return
+
+    repo = os.environ["GITHUB_REPOSITORY"]
+    aplicar_cambios(repo, item["number"], etiquetas, comentario)
+    print(f"Cambios aplicados en {repo}#{item['number']}")
 
 
 if __name__ == "__main__":
