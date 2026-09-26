@@ -1,0 +1,9 @@
+{
+  "action": "opened",
+  "issue": {
+    "number": 6,
+    "title": "Bug: bug",
+    "body": "<!--\n  Please provide a clear and concise description of what the bug is.\n-->\n\nReact version:\n\n## Steps To Reproduce\n\n1.\n2.\n\n<!-- Your bug will get fixed much faster if we can run your code. -->\n\nLink to code example:\n\n## The current behavior\n\n\n## The expected behavior\n\n",
+    "user": {"login": "usuario6"}
+  }
+}

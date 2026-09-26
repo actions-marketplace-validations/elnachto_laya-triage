@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.parse
@@ -13,6 +14,16 @@ UMBRAL_TIPO = 0.60
 UMBRAL_INFO = 0.75
 UMBRAL_SPAM = 0.70
 MAX_LINEAS_TRIVIAL = 5
+MIN_CARACTERES_UTILES = 30
+LIMITE_CUERPO = 1500
+
+PATRONES_RUIDO = [
+    re.compile(r"^\s*#{1,6}\s"),
+    re.compile(r"^\s*[-*]\s*\[[ xX]\]"),
+    re.compile(r"^\s*(\d+\.|[-*])\s*$"),
+    re.compile(r"^[^:]{1,60}:\s*$"),
+    re.compile(r"^\s*_?no response_?\s*$", re.IGNORECASE),
+]
 
 ETIQUETAS_TIPO = {
     "bug": "bug",
@@ -58,7 +69,19 @@ def cargar_evento():
         return json.load(archivo)
 
 
-def decidir_issue(respuestas):
+def limpiar_cuerpo(texto):
+    sin_comentarios = re.sub(r"<!--.*?-->", "", texto or "", flags=re.DOTALL)
+    lineas = []
+    for linea in sin_comentarios.splitlines():
+        if not linea.strip():
+            continue
+        if any(patron.search(linea) for patron in PATRONES_RUIDO):
+            continue
+        lineas.append(linea.strip())
+    return "\n".join(lineas)[:LIMITE_CUERPO]
+
+
+def decidir_issue(respuestas, cuerpo_util):
     etiquetas = []
     comentario = None
 
@@ -70,7 +93,9 @@ def decidir_issue(respuestas):
 
     if tipo["choice"] == "bug":
         info = respuestas["info_suficiente"]
-        if info["choice"] == "B" and info["answer_confidence"] >= UMBRAL_INFO:
+        cuerpo_vacio = len(cuerpo_util) < MIN_CARACTERES_UTILES
+        modelo_dice_falta = info["choice"] == "B" and info["answer_confidence"] >= UMBRAL_INFO
+        if cuerpo_vacio or modelo_dice_falta:
             etiquetas.append("needs-more-info")
             comentario = COMENTARIO_INFO
 
@@ -148,15 +173,17 @@ def main():
 
     if "pull_request" in evento:
         item = evento["pull_request"]
-        estado = {"title": item["title"], "body": item.get("body") or ""}
+        cuerpo_util = limpiar_cuerpo(item.get("body"))
+        estado = {"title": item["title"], "body": cuerpo_util}
         resultado = router.predict(estado, PREGUNTAS_PR)
         etiquetas, comentario = decidir_pr(item, resultado["answers"])
         tipo_item = "pull_request"
     elif "issue" in evento:
         item = evento["issue"]
-        estado = {"title": item["title"], "body": item.get("body") or ""}
+        cuerpo_util = limpiar_cuerpo(item.get("body"))
+        estado = {"title": item["title"], "body": cuerpo_util}
         resultado = router.predict(estado, PREGUNTAS_ISSUE)
-        etiquetas, comentario = decidir_issue(resultado["answers"])
+        etiquetas, comentario = decidir_issue(resultado["answers"], cuerpo_util)
         tipo_item = "issue"
     else:
         sys.exit("Evento no soportado: solo issues y pull requests")
@@ -166,6 +193,7 @@ def main():
         "numero": item["number"],
         "titulo": item["title"],
         "modelo": resultado["routing"]["model"],
+        "caracteres_utiles": len(cuerpo_util),
         "etiquetas": etiquetas,
         "comentario": comentario,
         "confianzas": {

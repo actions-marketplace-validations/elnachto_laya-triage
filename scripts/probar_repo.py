@@ -5,9 +5,7 @@ import urllib.request
 from laya import Router
 
 from preguntas import PREGUNTAS_ISSUE
-from triage import decidir_issue
-
-LIMITE_CUERPO = 1500
+from triage import decidir_issue, limpiar_cuerpo
 
 
 def obtener_issues(repo, cantidad):
@@ -30,10 +28,10 @@ def main():
     router = Router(default="multilingual")
 
     for issue in issues:
-        cuerpo = (issue.get("body") or "")[:LIMITE_CUERPO]
-        estado = {"title": issue["title"], "body": cuerpo}
+        cuerpo_util = limpiar_cuerpo(issue.get("body"))
+        estado = {"title": issue["title"], "body": cuerpo_util}
         resultado = router.predict(estado, PREGUNTAS_ISSUE)
-        etiquetas, comentario = decidir_issue(resultado["answers"])
+        etiquetas, comentario = decidir_issue(resultado["answers"], cuerpo_util)
         tipo = resultado["answers"]["tipo"]
         humanas = [etiqueta["name"] for etiqueta in issue["labels"]]
 
@@ -41,6 +39,7 @@ def main():
         print(f"#{issue['number']} {issue['title'][:80]}")
         print(f"laya:       {etiquetas}  ({tipo['choice']} {tipo['answer_confidence']:.2f})")
         print(f"humanos:    {humanas}")
+        print(f"texto útil: {len(cuerpo_util)} caracteres")
         print(f"comentaría: {'sí' if comentario else 'no'}")
 
 
