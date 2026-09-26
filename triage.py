@@ -2,6 +2,7 @@ import json
 import os
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 
 from laya import Router
@@ -19,6 +20,17 @@ ETIQUETAS_TIPO = {
     "question": "question",
     "docs": "documentation",
     "other": "chore",
+}
+
+ESTILO_ETIQUETAS = {
+    "bug": ("F2644B", "Something is not working"),
+    "enhancement": ("2E9E68", "New feature or request"),
+    "question": ("6B3FE7", "Further information is requested"),
+    "documentation": ("16141F", "Improvements or additions to documentation"),
+    "chore": ("9C98AE", "Refactoring, cleanup, tests or dependency updates"),
+    "needs-triage": ("9C98AE", "Waiting for a maintainer to review"),
+    "needs-more-info": ("6B3FE7", "Key details are missing from the report"),
+    "spam-probable": ("9C98AE", "Looks like a low-effort change, review before merging"),
 }
 
 COMENTARIO_INFO = (
@@ -79,14 +91,15 @@ def decidir_pr(pr, respuestas):
     return [], None
 
 
-def llamar_api(metodo, ruta, datos):
+def llamar_api(metodo, ruta, datos=None, codigos_aceptados=()):
     token = os.environ.get("GITHUB_TOKEN")
     if not token:
         sys.exit("Falta GITHUB_TOKEN para escribir en GitHub")
 
+    cuerpo = json.dumps(datos).encode("utf-8") if datos is not None else None
     peticion = urllib.request.Request(
         f"https://api.github.com{ruta}",
-        data=json.dumps(datos).encode("utf-8"),
+        data=cuerpo,
         method=metodo,
         headers={
             "Accept": "application/vnd.github+json",
@@ -96,14 +109,34 @@ def llamar_api(metodo, ruta, datos):
     )
     try:
         with urllib.request.urlopen(peticion) as respuesta:
-            return json.load(respuesta)
+            return respuesta.status, json.load(respuesta)
     except urllib.error.HTTPError as error:
+        if error.code in codigos_aceptados:
+            return error.code, None
         detalle = error.read().decode("utf-8", errors="replace")
         sys.exit(f"Error {error.code} en {metodo} {ruta}: {detalle}")
 
 
+def asegurar_etiqueta(repo, nombre):
+    if nombre not in ESTILO_ETIQUETAS:
+        return
+    nombre_url = urllib.parse.quote(nombre, safe="")
+    estado, _ = llamar_api("GET", f"/repos/{repo}/labels/{nombre_url}", codigos_aceptados=(404,))
+    if estado != 404:
+        return
+    color, descripcion = ESTILO_ETIQUETAS[nombre]
+    llamar_api(
+        "POST",
+        f"/repos/{repo}/labels",
+        {"name": nombre, "color": color, "description": descripcion},
+        codigos_aceptados=(422,),
+    )
+
+
 def aplicar_cambios(repo, numero, etiquetas, comentario):
     if etiquetas:
+        for nombre in etiquetas:
+            asegurar_etiqueta(repo, nombre)
         llamar_api("POST", f"/repos/{repo}/issues/{numero}/labels", {"labels": etiquetas})
     if comentario:
         llamar_api("POST", f"/repos/{repo}/issues/{numero}/comments", {"body": comentario + FIRMA})
