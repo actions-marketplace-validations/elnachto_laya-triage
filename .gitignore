@@ -3,3 +3,4 @@ __pycache__/
 *.pyc
 datos/
 bench/muestra_test.csv
+modelos/

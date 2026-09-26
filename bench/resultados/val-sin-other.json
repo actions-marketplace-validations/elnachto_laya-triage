@@ -1,0 +1,73 @@
+{
+  "modelo": "val-sin-other",
+  "variante": "sin_other",
+  "dispositivo": "cuda",
+  "issues": 5000,
+  "exactitud": 0.783,
+  "f1_macro": 0.587,
+  "linea_base_mayoritaria": 0.526,
+  "umbral": 0.6,
+  "cobertura_con_umbral": 0.689,
+  "exactitud_con_umbral": 0.882,
+  "ms_por_issue": 15.0,
+  "por_clase": {
+    "bug": {
+      "precision": 0.825,
+      "recall": 0.911,
+      "f1": 0.866,
+      "soporte": 2631
+    },
+    "feature": {
+      "precision": 0.836,
+      "recall": 0.724,
+      "f1": 0.776,
+      "soporte": 1855
+    },
+    "question": {
+      "precision": 0.325,
+      "recall": 0.24,
+      "f1": 0.277,
+      "soporte": 287
+    },
+    "docs": {
+      "precision": 0.388,
+      "recall": 0.476,
+      "f1": 0.428,
+      "soporte": 227
+    }
+  },
+  "confusion": [
+    [
+      "feature->bug",
+      306
+    ],
+    [
+      "bug->feature",
+      148
+    ],
+    [
+      "question->bug",
+      145
+    ],
+    [
+      "feature->docs",
+      103
+    ],
+    [
+      "feature->question",
+      103
+    ],
+    [
+      "question->feature",
+      60
+    ],
+    [
+      "docs->bug",
+      56
+    ],
+    [
+      "docs->feature",
+      55
+    ]
+  ]
+}

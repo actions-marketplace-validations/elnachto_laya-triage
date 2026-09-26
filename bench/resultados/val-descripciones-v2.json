@@ -1,0 +1,73 @@
+{
+  "modelo": "val-descripciones-v2",
+  "variante": "descripciones_v2",
+  "dispositivo": "cuda",
+  "issues": 5000,
+  "exactitud": 0.783,
+  "f1_macro": 0.589,
+  "linea_base_mayoritaria": 0.526,
+  "umbral": 0.6,
+  "cobertura_con_umbral": 0.699,
+  "exactitud_con_umbral": 0.875,
+  "ms_por_issue": 15.2,
+  "por_clase": {
+    "bug": {
+      "precision": 0.831,
+      "recall": 0.914,
+      "f1": 0.87,
+      "soporte": 2631
+    },
+    "feature": {
+      "precision": 0.838,
+      "recall": 0.713,
+      "f1": 0.771,
+      "soporte": 1855
+    },
+    "question": {
+      "precision": 0.246,
+      "recall": 0.209,
+      "f1": 0.226,
+      "soporte": 287
+    },
+    "docs": {
+      "precision": 0.442,
+      "recall": 0.551,
+      "f1": 0.49,
+      "soporte": 227
+    }
+  },
+  "confusion": [
+    [
+      "feature->bug",
+      295
+    ],
+    [
+      "question->bug",
+      152
+    ],
+    [
+      "bug->feature",
+      148
+    ],
+    [
+      "feature->question",
+      133
+    ],
+    [
+      "feature->docs",
+      104
+    ],
+    [
+      "question->feature",
+      61
+    ],
+    [
+      "docs->feature",
+      46
+    ],
+    [
+      "docs->bug",
+      43
+    ]
+  ]
+}

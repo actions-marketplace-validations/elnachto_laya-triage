@@ -8,7 +8,7 @@ import pandas as pd
 import torch
 from laya import Router
 
-from preguntas import TIPO
+from bench.variantes import VARIANTES
 from triage import UMBRAL_TIPO, limpiar_cuerpo
 
 MAPA_ETIQUETAS = {
@@ -44,29 +44,34 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("muestra")
     parser.add_argument("--nombre", default="laya-base")
+    parser.add_argument("--variante", default="actual", choices=sorted(VARIANTES))
+    parser.add_argument("--modelo-ingles", default="")
     parser.add_argument("--limite", type=int, default=0)
     parser.add_argument("--lote", type=int, default=32)
     parser.add_argument("--dispositivo", default="cuda" if torch.cuda.is_available() else "cpu")
     args = parser.parse_args()
 
+    pregunta = VARIANTES[args.variante]
     datos = pd.read_csv(args.muestra).fillna("")
     if args.limite:
         datos = datos.head(args.limite)
 
     peticiones = [
-        {"state": {"title": titulo, "body": limpiar_cuerpo(cuerpo)}, "questions": {"tipo": TIPO}}
+        {"state": {"title": str(titulo), "body": limpiar_cuerpo(str(cuerpo))}, "questions": {"tipo": pregunta}}
         for titulo, cuerpo in zip(datos["title"], datos["body"])
     ]
     reales = [MAPA_ETIQUETAS[etiqueta] for etiqueta in datos["labels"]]
 
-    print(f"Evaluando {len(peticiones)} issues en {args.dispositivo}")
-    router = Router(default="multilingual", device=args.dispositivo)
+    modelos = {"english": args.modelo_ingles} if args.modelo_ingles else None
+    print(f"Evaluando {len(peticiones)} issues en {args.dispositivo} con la variante {args.variante}")
+    router = Router(models=modelos, default="multilingual", device=args.dispositivo)
     inicio = time.perf_counter()
     resultados = router.predict_batch(peticiones, batch_size=args.lote)
     segundos = time.perf_counter() - inicio
 
     predichas = [r["answers"]["tipo"]["choice"] for r in resultados]
     confianzas = [r["answers"]["tipo"]["answer_confidence"] for r in resultados]
+    rutas = Counter(r["routing"]["model"] for r in resultados)
 
     exactitud, f1_macro, por_clase = calcular_metricas(reales, predichas)
     cubiertos = [(r, p) for r, p, c in zip(reales, predichas, confianzas) if c >= UMBRAL_TIPO]
@@ -76,8 +81,11 @@ def main():
 
     informe = {
         "modelo": args.nombre,
+        "modelo_ingles": args.modelo_ingles or "convaiinnovations/laya",
+        "variante": args.variante,
         "dispositivo": args.dispositivo,
         "issues": len(reales),
+        "rutas": dict(rutas),
         "exactitud": round(exactitud, 3),
         "f1_macro": round(f1_macro, 3),
         "linea_base_mayoritaria": round(linea_base, 3),
