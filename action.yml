@@ -4,6 +4,12 @@ branding:
   icon: "tag"
   color: "purple"
 
+inputs:
+  mode:
+    description: "Use 'triage' to classify issues and pull requests, or 'warm-cache' to download the models and save them in the cache"
+    required: false
+    default: "triage"
+
 runs:
   using: "composite"
   steps:
@@ -11,7 +17,14 @@ runs:
       with:
         python-version: "3.12"
 
-    - uses: actions/cache@v6
+    - if: inputs.mode == 'warm-cache'
+      uses: actions/cache@v6
+      with:
+        path: ~/.cache/huggingface
+        key: laya-models-0.3.20
+
+    - if: inputs.mode != 'warm-cache'
+      uses: actions/cache/restore@v6
       with:
         path: ~/.cache/huggingface
         key: laya-models-0.3.20
@@ -22,6 +35,12 @@ runs:
         pip install torch --index-url https://download.pytorch.org/whl/cpu
         pip install -r "${{ github.action_path }}/requirements.txt"
 
+    - name: Download models
+      if: inputs.mode == 'warm-cache'
+      shell: bash
+      run: python -c "from laya import Router; Router().preload(['english', 'multilingual'])"
+
     - name: Run triage
+      if: inputs.mode != 'warm-cache'
       shell: bash
       run: python "${{ github.action_path }}/triage.py"
