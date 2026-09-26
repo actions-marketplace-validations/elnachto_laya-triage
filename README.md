@@ -136,7 +136,7 @@ With a GitHub App token, the workflow only needs `contents: read`.
 
 - laya-triage uses the **base** Laya checkpoints, which are not fine-tuned for GitHub triage yet. Treat its labels as suggestions.
 - Confidence thresholds are provisional. In a small test on 25 real issues from `microsoft/vscode` and `facebook/react`, no issue received a wrong type label, and uncertain issues went to `needs-triage`. A larger evaluation is planned.
-- Issue templates can make empty reports look complete to the model.
+- laya-triage strips issue template boilerplate before classifying, and flags bug reports with less than 30 characters of real content as `needs-more-info`. Very short but complete reports may also get this label.
 - Each run takes about one minute on a standard runner, mostly spent installing dependencies.
 
 ## Run it locally
