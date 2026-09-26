@@ -1,0 +1,72 @@
+{
+  "modelo": "laya-base",
+  "dispositivo": "cuda",
+  "issues": 5000,
+  "exactitud": 0.759,
+  "f1_macro": 0.564,
+  "linea_base_mayoritaria": 0.528,
+  "umbral": 0.6,
+  "cobertura_con_umbral": 0.571,
+  "exactitud_con_umbral": 0.891,
+  "ms_por_issue": 15.4,
+  "por_clase": {
+    "bug": {
+      "precision": 0.828,
+      "recall": 0.897,
+      "f1": 0.861,
+      "soporte": 2639
+    },
+    "feature": {
+      "precision": 0.833,
+      "recall": 0.694,
+      "f1": 0.757,
+      "soporte": 1840
+    },
+    "question": {
+      "precision": 0.394,
+      "recall": 0.163,
+      "f1": 0.23,
+      "soporte": 307
+    },
+    "docs": {
+      "precision": 0.354,
+      "recall": 0.477,
+      "f1": 0.406,
+      "soporte": 214
+    }
+  },
+  "confusion": [
+    [
+      "feature->bug",
+      277
+    ],
+    [
+      "question->bug",
+      173
+    ],
+    [
+      "bug->feature",
+      155
+    ],
+    [
+      "feature->other",
+      125
+    ],
+    [
+      "feature->docs",
+      112
+    ],
+    [
+      "bug->docs",
+      57
+    ],
+    [
+      "question->feature",
+      54
+    ],
+    [
+      "feature->question",
+      49
+    ]
+  ]
+}
