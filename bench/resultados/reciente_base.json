@@ -1,0 +1,79 @@
+{
+  "modelo": "reciente_base",
+  "modelo_ingles": "convaiinnovations/laya",
+  "variante": "sin_other",
+  "priores": null,
+  "dispositivo": "cuda",
+  "issues": 2000,
+  "rutas": {
+    "english": 1633,
+    "multilingual": 367
+  },
+  "exactitud": 0.564,
+  "f1_macro": 0.523,
+  "linea_base_mayoritaria": 0.25,
+  "umbral": 0.6,
+  "cobertura_con_umbral": 0.525,
+  "exactitud_con_umbral": 0.674,
+  "ms_por_issue": 19.8,
+  "por_clase": {
+    "bug": {
+      "precision": 0.52,
+      "recall": 0.752,
+      "f1": 0.615,
+      "soporte": 500
+    },
+    "feature": {
+      "precision": 0.503,
+      "recall": 0.72,
+      "f1": 0.593,
+      "soporte": 500
+    },
+    "question": {
+      "precision": 0.821,
+      "recall": 0.128,
+      "f1": 0.221,
+      "soporte": 500
+    },
+    "docs": {
+      "precision": 0.676,
+      "recall": 0.654,
+      "f1": 0.665,
+      "soporte": 500
+    }
+  },
+  "confusion": [
+    [
+      "question->bug",
+      206
+    ],
+    [
+      "question->feature",
+      147
+    ],
+    [
+      "docs->feature",
+      113
+    ],
+    [
+      "bug->feature",
+      95
+    ],
+    [
+      "feature->bug",
+      86
+    ],
+    [
+      "question->docs",
+      83
+    ],
+    [
+      "docs->bug",
+      55
+    ],
+    [
+      "feature->docs",
+      48
+    ]
+  ]
+}

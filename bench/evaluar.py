@@ -40,6 +40,23 @@ def calcular_metricas(reales, predichas):
     return aciertos / len(reales), f1_macro, por_clase
 
 
+def leer_priores(carpeta_modelo):
+    ruta = os.path.join(carpeta_modelo, "rl_agent_config.json")
+    with open(ruta, encoding="utf-8") as archivo:
+        priores = json.load(archivo).get("laya_triage", {}).get("priores")
+    if not priores:
+        raise SystemExit(f"{ruta} no tiene priores: corre primero python -m entrenamiento.calibrar --guardar")
+    return priores
+
+
+def aplicar_priores(respuesta, priores):
+    ajustadas = {k: p * priores.get(k, 1.0) for k, p in respuesta["probabilities"].items()}
+    total = sum(ajustadas.values()) or 1.0
+    ajustadas = {k: v / total for k, v in ajustadas.items()}
+    eleccion = max(ajustadas, key=ajustadas.get)
+    return eleccion, ajustadas[eleccion]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("muestra")
@@ -49,7 +66,12 @@ def main():
     parser.add_argument("--limite", type=int, default=0)
     parser.add_argument("--lote", type=int, default=32)
     parser.add_argument("--dispositivo", default="cuda" if torch.cuda.is_available() else "cpu")
+    parser.add_argument("--priores", action="store_true")
     args = parser.parse_args()
+
+    if args.priores and not args.modelo_ingles:
+        raise SystemExit("--priores solo tiene sentido con --modelo-ingles")
+    priores = leer_priores(args.modelo_ingles) if args.priores else None
 
     pregunta = VARIANTES[args.variante]
     datos = pd.read_csv(args.muestra).fillna("")
@@ -69,8 +91,16 @@ def main():
     resultados = router.predict_batch(peticiones, batch_size=args.lote)
     segundos = time.perf_counter() - inicio
 
-    predichas = [r["answers"]["tipo"]["choice"] for r in resultados]
-    confianzas = [r["answers"]["tipo"]["answer_confidence"] for r in resultados]
+    predichas = []
+    confianzas = []
+    for r in resultados:
+        respuesta = r["answers"]["tipo"]
+        if priores and r["routing"]["model"] == "english":
+            eleccion, confianza = aplicar_priores(respuesta, priores)
+        else:
+            eleccion, confianza = respuesta["choice"], respuesta["answer_confidence"]
+        predichas.append(eleccion)
+        confianzas.append(confianza)
     rutas = Counter(r["routing"]["model"] for r in resultados)
 
     exactitud, f1_macro, por_clase = calcular_metricas(reales, predichas)
@@ -83,6 +113,7 @@ def main():
         "modelo": args.nombre,
         "modelo_ingles": args.modelo_ingles or "convaiinnovations/laya",
         "variante": args.variante,
+        "priores": priores,
         "dispositivo": args.dispositivo,
         "issues": len(reales),
         "rutas": dict(rutas),
