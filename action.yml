@@ -22,8 +22,23 @@ runs:
   using: "composite"
   steps:
     - uses: actions/setup-python@v7
+      id: python
       with:
         python-version: "3.12"
+
+    - if: inputs.mode == 'warm-cache'
+      id: venv-save
+      uses: actions/cache@v6
+      with:
+        path: ~/laya-venv
+        key: laya-venv-${{ runner.os }}-${{ steps.python.outputs.python-version }}-laya-0.3.20
+
+    - if: inputs.mode != 'warm-cache'
+      id: venv-restore
+      uses: actions/cache/restore@v6
+      with:
+        path: ~/laya-venv
+        key: laya-venv-${{ runner.os }}-${{ steps.python.outputs.python-version }}-laya-0.3.20
 
     - if: inputs.mode == 'warm-cache'
       uses: actions/cache@v6
@@ -38,15 +53,17 @@ runs:
         key: laya-models-0.3.20
 
     - name: Install dependencies
+      if: steps.venv-save.outputs.cache-hit != 'true' && steps.venv-restore.outputs.cache-hit != 'true'
       shell: bash
       run: |
-        pip install torch --index-url https://download.pytorch.org/whl/cpu
-        pip install -r "${{ github.action_path }}/requirements.txt"
+        python -m venv "$HOME/laya-venv"
+        "$HOME/laya-venv/bin/pip" install torch --index-url https://download.pytorch.org/whl/cpu
+        "$HOME/laya-venv/bin/pip" install -r "${{ github.action_path }}/requirements.txt"
 
     - name: Download models
       if: inputs.mode == 'warm-cache'
       shell: bash
-      run: python -c "from laya import Router; Router().preload(['english', 'multilingual'])"
+      run: '"$HOME/laya-venv/bin/python" -c "from laya import Router; Router().preload([''english'', ''multilingual''])"'
 
     - name: Run triage
       if: inputs.mode != 'warm-cache'
@@ -54,4 +71,4 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         LAYA_DRY_RUN: ${{ inputs.dry-run }}
-      run: python "${{ github.action_path }}/triage.py"
+      run: '"$HOME/laya-venv/bin/python" "${{ github.action_path }}/triage.py"'
