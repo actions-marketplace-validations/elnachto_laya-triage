@@ -8,6 +8,7 @@ import urllib.request
 
 from laya import Router
 
+from plantillas import cargar_plantillas, quitar_plantilla
 from preguntas import PREGUNTAS_ISSUE, PREGUNTAS_PR
 
 UMBRAL_TIPO = 0.60
@@ -79,6 +80,13 @@ def limpiar_cuerpo(texto):
             continue
         lineas.append(linea.strip())
     return "\n".join(lineas)[:LIMITE_CUERPO]
+
+
+def limpiar_issue(evento, item):
+    repo = evento.get("repository", {}).get("full_name") or os.environ.get("GITHUB_REPOSITORY")
+    lineas = cargar_plantillas(repo, os.environ.get("GITHUB_TOKEN")) if repo else set()
+    sin_plantilla = quitar_plantilla(item.get("body"), lineas)
+    return limpiar_cuerpo(sin_plantilla), len(lineas)
 
 
 def decidir_issue(respuestas, cuerpo_util):
@@ -174,13 +182,14 @@ def main():
     if "pull_request" in evento:
         item = evento["pull_request"]
         cuerpo_util = limpiar_cuerpo(item.get("body"))
+        lineas_plantilla = 0
         estado = {"title": item["title"], "body": cuerpo_util}
         resultado = router.predict(estado, PREGUNTAS_PR)
         etiquetas, comentario = decidir_pr(item, resultado["answers"])
         tipo_item = "pull_request"
     elif "issue" in evento:
         item = evento["issue"]
-        cuerpo_util = limpiar_cuerpo(item.get("body"))
+        cuerpo_util, lineas_plantilla = limpiar_issue(evento, item)
         estado = {"title": item["title"], "body": cuerpo_util}
         resultado = router.predict(estado, PREGUNTAS_ISSUE)
         etiquetas, comentario = decidir_issue(resultado["answers"], cuerpo_util)
@@ -193,6 +202,7 @@ def main():
         "numero": item["number"],
         "titulo": item["title"],
         "modelo": resultado["routing"]["model"],
+        "lineas_plantilla": lineas_plantilla,
         "caracteres_utiles": len(cuerpo_util),
         "etiquetas": etiquetas,
         "comentario": comentario,
