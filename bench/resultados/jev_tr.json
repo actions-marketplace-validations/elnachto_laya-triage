@@ -1,0 +1,141 @@
+{
+  "modelo": "jev_tr",
+  "modelo_jev": "jev-1.13.0",
+  "variante": "sin_other",
+  "issues": 500,
+  "issues_sin_respuesta": 0,
+  "errores": {},
+  "exactitud": 0.85,
+  "f1_macro": 0.687,
+  "umbral": 0.6,
+  "cobertura_con_umbral": 0.928,
+  "exactitud_con_umbral": 0.875,
+  "curva_prob_maxima": [
+    {
+      "umbral": 0.4,
+      "cobertura": 0.998,
+      "precision": 0.85
+    },
+    {
+      "umbral": 0.45,
+      "cobertura": 0.99,
+      "precision": 0.855
+    },
+    {
+      "umbral": 0.5,
+      "cobertura": 0.982,
+      "precision": 0.857
+    },
+    {
+      "umbral": 0.55,
+      "cobertura": 0.96,
+      "precision": 0.863
+    },
+    {
+      "umbral": 0.6,
+      "cobertura": 0.928,
+      "precision": 0.875
+    },
+    {
+      "umbral": 0.65,
+      "cobertura": 0.894,
+      "precision": 0.895
+    },
+    {
+      "umbral": 0.7,
+      "cobertura": 0.87,
+      "precision": 0.899
+    },
+    {
+      "umbral": 0.75,
+      "cobertura": 0.84,
+      "precision": 0.907
+    },
+    {
+      "umbral": 0.8,
+      "cobertura": 0.812,
+      "precision": 0.919
+    },
+    {
+      "umbral": 0.85,
+      "cobertura": 0.772,
+      "precision": 0.927
+    },
+    {
+      "umbral": 0.9,
+      "cobertura": 0.716,
+      "precision": 0.941
+    },
+    {
+      "umbral": 0.95,
+      "cobertura": 0.642,
+      "precision": 0.944
+    }
+  ],
+  "latencia_ms": {
+    "mediana": 337.2,
+    "p95": 394.4
+  },
+  "tokens_entrada": 309046,
+  "costo_usd": 0.013,
+  "por_clase": {
+    "bug": {
+      "precision": 0.932,
+      "recall": 0.922,
+      "f1": 0.927,
+      "soporte": 281
+    },
+    "feature": {
+      "precision": 0.885,
+      "recall": 0.812,
+      "f1": 0.847,
+      "soporte": 170
+    },
+    "question": {
+      "precision": 0.39,
+      "recall": 0.64,
+      "f1": 0.485,
+      "soporte": 25
+    },
+    "docs": {
+      "precision": 0.48,
+      "recall": 0.5,
+      "f1": 0.49,
+      "soporte": 24
+    }
+  },
+  "confusion": [
+    [
+      "feature->question",
+      15
+    ],
+    [
+      "feature->bug",
+      10
+    ],
+    [
+      "docs->feature",
+      9
+    ],
+    [
+      "bug->question",
+      9
+    ],
+    [
+      "question->bug",
+      7
+    ],
+    [
+      "bug->feature",
+      7
+    ],
+    [
+      "feature->docs",
+      7
+    ],
+    [
+      "bug->docs",
+      6
+    ]
+  ]
+}

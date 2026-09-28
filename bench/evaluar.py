@@ -63,15 +63,19 @@ def main():
     parser.add_argument("--nombre", default="laya-base")
     parser.add_argument("--variante", default="actual", choices=sorted(VARIANTES))
     parser.add_argument("--modelo-ingles", default="")
+    parser.add_argument("--modelo-multilingue", default="")
     parser.add_argument("--limite", type=int, default=0)
     parser.add_argument("--lote", type=int, default=32)
     parser.add_argument("--dispositivo", default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--priores", action="store_true")
+    parser.add_argument("--por-defecto", default="multilingual", choices=["multilingual", "english"])
     args = parser.parse_args()
 
-    if args.priores and not args.modelo_ingles:
-        raise SystemExit("--priores solo tiene sentido con --modelo-ingles")
-    priores = leer_priores(args.modelo_ingles) if args.priores else None
+    rutas_modelo = {"english": args.modelo_ingles, "multilingual": args.modelo_multilingue}
+    rutas_modelo = {ruta: carpeta for ruta, carpeta in rutas_modelo.items() if carpeta}
+    if args.priores and not rutas_modelo:
+        raise SystemExit("--priores necesita --modelo-ingles o --modelo-multilingue")
+    priores = {ruta: leer_priores(carpeta) for ruta, carpeta in rutas_modelo.items()} if args.priores else {}
 
     pregunta = VARIANTES[args.variante]
     datos = pd.read_csv(args.muestra).fillna("")
@@ -84,9 +88,9 @@ def main():
     ]
     reales = [MAPA_ETIQUETAS[etiqueta] for etiqueta in datos["labels"]]
 
-    modelos = {"english": args.modelo_ingles} if args.modelo_ingles else None
+    modelos = rutas_modelo or None
     print(f"Evaluando {len(peticiones)} issues en {args.dispositivo} con la variante {args.variante}")
-    router = Router(models=modelos, default="multilingual", device=args.dispositivo)
+    router = Router(models=modelos, default=args.por_defecto, device=args.dispositivo)
     inicio = time.perf_counter()
     resultados = router.predict_batch(peticiones, batch_size=args.lote)
     segundos = time.perf_counter() - inicio
@@ -95,13 +99,19 @@ def main():
     confianzas = []
     for r in resultados:
         respuesta = r["answers"]["tipo"]
-        if priores and r["routing"]["model"] == "english":
-            eleccion, confianza = aplicar_priores(respuesta, priores)
+        ruta = r["routing"]["model"]
+        if ruta in priores:
+            eleccion, confianza = aplicar_priores(respuesta, priores[ruta])
         else:
             eleccion, confianza = respuesta["choice"], respuesta["answer_confidence"]
         predichas.append(eleccion)
         confianzas.append(confianza)
     rutas = Counter(r["routing"]["model"] for r in resultados)
+    por_ruta = {}
+    for nombre_ruta in rutas:
+        indices = [i for i, r in enumerate(resultados) if r["routing"]["model"] == nombre_ruta]
+        exactitud_ruta, f1_ruta, _ = calcular_metricas([reales[i] for i in indices], [predichas[i] for i in indices])
+        por_ruta[nombre_ruta] = {"issues": len(indices), "exactitud": round(exactitud_ruta, 3), "f1_macro": round(f1_ruta, 3)}
 
     exactitud, f1_macro, por_clase = calcular_metricas(reales, predichas)
     cubiertos = [(r, p) for r, p, c in zip(reales, predichas, confianzas) if c >= UMBRAL_TIPO]
@@ -112,11 +122,14 @@ def main():
     informe = {
         "modelo": args.nombre,
         "modelo_ingles": args.modelo_ingles or "convaiinnovations/laya",
+        "modelo_multilingue": args.modelo_multilingue or "convaiinnovations/laya/multilingual",
         "variante": args.variante,
+        "por_defecto": args.por_defecto,
         "priores": priores,
         "dispositivo": args.dispositivo,
         "issues": len(reales),
         "rutas": dict(rutas),
+        "por_ruta": por_ruta,
         "exactitud": round(exactitud, 3),
         "f1_macro": round(f1_macro, 3),
         "linea_base_mayoritaria": round(linea_base, 3),

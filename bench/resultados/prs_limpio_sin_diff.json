@@ -1,0 +1,232 @@
+{
+  "modelo": "prs_limpio_sin_diff",
+  "filtros": {
+    "origen": "spam",
+    "sin_practica": true,
+    "anio": "",
+    "con_diff": false
+  },
+  "prs": 1297,
+  "spam": 448,
+  "genuinos": 849,
+  "umbral_spam_actual": 0.7,
+  "ms_por_pr": 17.1,
+  "triviales_por_clase_pct": {
+    "genuino": 10.5,
+    "spam": 37.3
+  },
+  "prob_spam_mediana_por_clase": {
+    "genuino": 0.157,
+    "spam": 0.307
+  },
+  "regla_actual": {
+    "precision": 0.513,
+    "recall": 0.045,
+    "f1": 0.082,
+    "falsos_positivos": 19,
+    "genuinos_marcados_pct": 2.2
+  },
+  "solo_regla_trivial": {
+    "precision": 0.652,
+    "recall": 0.373,
+    "f1": 0.474,
+    "falsos_positivos": 89,
+    "genuinos_marcados_pct": 10.5
+  },
+  "curva": [
+    {
+      "umbral": 0.5,
+      "solo_modelo": {
+        "precision": 0.464,
+        "recall": 0.214,
+        "f1": 0.293,
+        "falsos_positivos": 111,
+        "genuinos_marcados_pct": 13.1
+      },
+      "modelo_y_trivial": {
+        "precision": 0.603,
+        "recall": 0.092,
+        "f1": 0.159,
+        "falsos_positivos": 27,
+        "genuinos_marcados_pct": 3.2
+      }
+    },
+    {
+      "umbral": 0.55,
+      "solo_modelo": {
+        "precision": 0.486,
+        "recall": 0.201,
+        "f1": 0.284,
+        "falsos_positivos": 95,
+        "genuinos_marcados_pct": 11.2
+      },
+      "modelo_y_trivial": {
+        "precision": 0.591,
+        "recall": 0.087,
+        "f1": 0.152,
+        "falsos_positivos": 27,
+        "genuinos_marcados_pct": 3.2
+      }
+    },
+    {
+      "umbral": 0.6,
+      "solo_modelo": {
+        "precision": 0.5,
+        "recall": 0.176,
+        "f1": 0.261,
+        "falsos_positivos": 79,
+        "genuinos_marcados_pct": 9.3
+      },
+      "modelo_y_trivial": {
+        "precision": 0.576,
+        "recall": 0.076,
+        "f1": 0.134,
+        "falsos_positivos": 25,
+        "genuinos_marcados_pct": 2.9
+      }
+    },
+    {
+      "umbral": 0.65,
+      "solo_modelo": {
+        "precision": 0.496,
+        "recall": 0.141,
+        "f1": 0.219,
+        "falsos_positivos": 64,
+        "genuinos_marcados_pct": 7.5
+      },
+      "modelo_y_trivial": {
+        "precision": 0.553,
+        "recall": 0.058,
+        "f1": 0.105,
+        "falsos_positivos": 21,
+        "genuinos_marcados_pct": 2.5
+      }
+    },
+    {
+      "umbral": 0.7,
+      "solo_modelo": {
+        "precision": 0.505,
+        "recall": 0.109,
+        "f1": 0.18,
+        "falsos_positivos": 48,
+        "genuinos_marcados_pct": 5.7
+      },
+      "modelo_y_trivial": {
+        "precision": 0.513,
+        "recall": 0.045,
+        "f1": 0.082,
+        "falsos_positivos": 19,
+        "genuinos_marcados_pct": 2.2
+      }
+    },
+    {
+      "umbral": 0.75,
+      "solo_modelo": {
+        "precision": 0.491,
+        "recall": 0.058,
+        "f1": 0.104,
+        "falsos_positivos": 27,
+        "genuinos_marcados_pct": 3.2
+      },
+      "modelo_y_trivial": {
+        "precision": 0.667,
+        "recall": 0.018,
+        "f1": 0.035,
+        "falsos_positivos": 4,
+        "genuinos_marcados_pct": 0.5
+      }
+    },
+    {
+      "umbral": 0.8,
+      "solo_modelo": {
+        "precision": 0.448,
+        "recall": 0.029,
+        "f1": 0.055,
+        "falsos_positivos": 16,
+        "genuinos_marcados_pct": 1.9
+      },
+      "modelo_y_trivial": {
+        "precision": 0.667,
+        "recall": 0.009,
+        "f1": 0.018,
+        "falsos_positivos": 2,
+        "genuinos_marcados_pct": 0.2
+      }
+    },
+    {
+      "umbral": 0.85,
+      "solo_modelo": {
+        "precision": 0.5,
+        "recall": 0.018,
+        "f1": 0.034,
+        "falsos_positivos": 8,
+        "genuinos_marcados_pct": 0.9
+      },
+      "modelo_y_trivial": {
+        "precision": 0.333,
+        "recall": 0.002,
+        "f1": 0.004,
+        "falsos_positivos": 2,
+        "genuinos_marcados_pct": 0.2
+      }
+    },
+    {
+      "umbral": 0.9,
+      "solo_modelo": {
+        "precision": 0.571,
+        "recall": 0.009,
+        "f1": 0.018,
+        "falsos_positivos": 3,
+        "genuinos_marcados_pct": 0.4
+      },
+      "modelo_y_trivial": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "falsos_positivos": 2,
+        "genuinos_marcados_pct": 0.2
+      }
+    },
+    {
+      "umbral": 0.95,
+      "solo_modelo": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "falsos_positivos": 0,
+        "genuinos_marcados_pct": 0.0
+      },
+      "modelo_y_trivial": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "falsos_positivos": 0,
+        "genuinos_marcados_pct": 0.0
+      }
+    }
+  ],
+  "spam_no_detectado": [
+    "Add files via upload",
+    "Update README.md",
+    "added-graphql-logo",
+    "feat: add experience level based matching for better user pairing",
+    "Create SECURITY.md for security policy",
+    "Create HelloWorld.alg",
+    "Update README.md",
+    "Fix: some Typo's in docs",
+    "Add Halloween countdown timer section",
+    "new changes"
+  ],
+  "genuinos_marcados": [
+    "Update HomeControllerTest.java",
+    "Update Index.html",
+    "Update Tuple.php",
+    "Update Index.html",
+    "Update Index.html",
+    "Update Index.html",
+    "Update Index.html",
+    "Update a_star.js",
+    "Update 2025.md",
+    "Update Index.html"
+  ]
+}

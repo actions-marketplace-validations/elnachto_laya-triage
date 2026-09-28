@@ -1,0 +1,70 @@
+{
+  "modelo": "rival_en_nuestro_test",
+  "checkpoint": "harikarthikmanyam/laya-issue-triage",
+  "issues": 5000,
+  "exactitud": 0.645,
+  "f1_macro": 0.547,
+  "cobertura_con_umbral": 0.721,
+  "exactitud_con_umbral": 0.72,
+  "ms_por_issue": 15.1,
+  "por_clase": {
+    "bug": {
+      "precision": 0.906,
+      "recall": 0.541,
+      "f1": 0.677,
+      "soporte": 2639
+    },
+    "feature": {
+      "precision": 0.763,
+      "recall": 0.772,
+      "f1": 0.768,
+      "soporte": 1840
+    },
+    "question": {
+      "precision": 0.22,
+      "recall": 0.785,
+      "f1": 0.343,
+      "soporte": 307
+    },
+    "docs": {
+      "precision": 0.291,
+      "recall": 0.636,
+      "f1": 0.399,
+      "soporte": 214
+    }
+  },
+  "confusion": [
+    [
+      "bug->question",
+      637
+    ],
+    [
+      "bug->feature",
+      384
+    ],
+    [
+      "bug->docs",
+      191
+    ],
+    [
+      "feature->question",
+      188
+    ],
+    [
+      "feature->docs",
+      125
+    ],
+    [
+      "feature->bug",
+      107
+    ],
+    [
+      "docs->feature",
+      35
+    ],
+    [
+      "docs->question",
+      31
+    ]
+  ]
+}

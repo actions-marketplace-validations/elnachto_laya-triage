@@ -1,0 +1,141 @@
+{
+  "modelo": "jev_reciente",
+  "modelo_jev": "jev-1.13.0",
+  "variante": "sin_other",
+  "issues": 2000,
+  "issues_sin_respuesta": 0,
+  "errores": {},
+  "exactitud": 0.691,
+  "f1_macro": 0.66,
+  "umbral": 0.6,
+  "cobertura_con_umbral": 0.913,
+  "exactitud_con_umbral": 0.725,
+  "curva_prob_maxima": [
+    {
+      "umbral": 0.4,
+      "cobertura": 0.997,
+      "precision": 0.691
+    },
+    {
+      "umbral": 0.45,
+      "cobertura": 0.992,
+      "precision": 0.694
+    },
+    {
+      "umbral": 0.5,
+      "cobertura": 0.98,
+      "precision": 0.698
+    },
+    {
+      "umbral": 0.55,
+      "cobertura": 0.946,
+      "precision": 0.713
+    },
+    {
+      "umbral": 0.6,
+      "cobertura": 0.913,
+      "precision": 0.725
+    },
+    {
+      "umbral": 0.65,
+      "cobertura": 0.888,
+      "precision": 0.73
+    },
+    {
+      "umbral": 0.7,
+      "cobertura": 0.856,
+      "precision": 0.743
+    },
+    {
+      "umbral": 0.75,
+      "cobertura": 0.824,
+      "precision": 0.757
+    },
+    {
+      "umbral": 0.8,
+      "cobertura": 0.785,
+      "precision": 0.773
+    },
+    {
+      "umbral": 0.85,
+      "cobertura": 0.741,
+      "precision": 0.79
+    },
+    {
+      "umbral": 0.9,
+      "cobertura": 0.685,
+      "precision": 0.8
+    },
+    {
+      "umbral": 0.95,
+      "cobertura": 0.604,
+      "precision": 0.823
+    }
+  ],
+  "latencia_ms": {
+    "mediana": 292.7,
+    "p95": 387.3
+  },
+  "tokens_entrada": 1354178,
+  "costo_usd": 0.0569,
+  "por_clase": {
+    "bug": {
+      "precision": 0.661,
+      "recall": 0.93,
+      "f1": 0.773,
+      "soporte": 500
+    },
+    "feature": {
+      "precision": 0.572,
+      "recall": 0.898,
+      "f1": 0.699,
+      "soporte": 500
+    },
+    "question": {
+      "precision": 0.96,
+      "recall": 0.242,
+      "f1": 0.387,
+      "soporte": 500
+    },
+    "docs": {
+      "precision": 0.896,
+      "recall": 0.692,
+      "f1": 0.781,
+      "soporte": 500
+    }
+  },
+  "confusion": [
+    [
+      "question->feature",
+      187
+    ],
+    [
+      "question->bug",
+      164
+    ],
+    [
+      "docs->feature",
+      122
+    ],
+    [
+      "feature->bug",
+      43
+    ],
+    [
+      "docs->bug",
+      31
+    ],
+    [
+      "question->docs",
+      28
+    ],
+    [
+      "bug->feature",
+      27
+    ],
+    [
+      "feature->docs",
+      7
+    ]
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "modelo": "ml_actual_en",
+  "modelo_ingles": "modelos\\laya-triage-en-150k\\mejor",
+  "variante": "sin_other",
+  "priores": {
+    "bug": 0.526,
+    "feature": 0.37,
+    "question": 0.06,
+    "docs": 0.044
+  },
+  "dispositivo": "cuda",
+  "issues": 500,
+  "rutas": {
+    "multilingual": 28,
+    "english": 472
+  },
+  "exactitud": 0.892,
+  "f1_macro": 0.792,
+  "linea_base_mayoritaria": 0.562,
+  "umbral": 0.6,
+  "cobertura_con_umbral": 0.944,
+  "exactitud_con_umbral": 0.919,
+  "ms_por_issue": 29.8,
+  "por_clase": {
+    "bug": {
+      "precision": 0.935,
+      "recall": 0.929,
+      "f1": 0.932,
+      "soporte": 281
+    },
+    "feature": {
+      "precision": 0.884,
+      "recall": 0.894,
+      "f1": 0.889,
+      "soporte": 170
+    },
+    "question": {
+      "precision": 0.613,
+      "recall": 0.76,
+      "f1": 0.679,
+      "soporte": 25
+    },
+    "docs": {
+      "precision": 0.778,
+      "recall": 0.583,
+      "f1": 0.667,
+      "soporte": 24
+    }
+  },
+  "confusion": [
+    [
+      "bug->feature",
+      12
+    ],
+    [
+      "feature->bug",
+      10
+    ],
+    [
+      "bug->question",
+      7
+    ],
+    [
+      "docs->bug",
+      5
+    ],
+    [
+      "docs->feature",
+      5
+    ],
+    [
+      "feature->question",
+      5
+    ],
+    [
+      "question->bug",
+      3
+    ],
+    [
+      "feature->docs",
+      3
+    ]
+  ]
+}
