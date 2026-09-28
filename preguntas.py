@@ -6,7 +6,6 @@ TIPO = {
         "feature": "a request for new functionality or an improvement",
         "question": "the user asks for help, how to use, install or configure something",
         "docs": "the user reports an error, typo or missing section in the existing documentation",
-        "other": "internal tasks like refactoring, cleanup, tests or dependency updates",
     },
 }
 

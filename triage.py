@@ -8,6 +8,7 @@ import urllib.request
 
 from laya import Router
 
+from modelos import leer_priores, rutas_modelos
 from plantillas import cargar_plantillas, quitar_plantilla
 from preguntas import PREGUNTAS_ISSUE, PREGUNTAS_PR
 
@@ -31,7 +32,6 @@ ETIQUETAS_TIPO = {
     "feature": "enhancement",
     "question": "question",
     "docs": "documentation",
-    "other": "chore",
 }
 
 ESTILO_ETIQUETAS = {
@@ -39,7 +39,6 @@ ESTILO_ETIQUETAS = {
     "enhancement": ("2E9E68", "New feature or request"),
     "question": ("6B3FE7", "Further information is requested"),
     "documentation": ("16141F", "Improvements or additions to documentation"),
-    "chore": ("9C98AE", "Refactoring, cleanup, tests or dependency updates"),
     "needs-triage": ("9C98AE", "Waiting for a maintainer to review"),
     "needs-more-info": ("6B3FE7", "Key details are missing from the report"),
     "spam-probable": ("9C98AE", "Looks like a low-effort change, review before merging"),
@@ -87,6 +86,22 @@ def limpiar_issue(evento, item):
     lineas = cargar_plantillas(repo, os.environ.get("GITHUB_TOKEN")) if repo else set()
     sin_plantilla = quitar_plantilla(item.get("body"), lineas)
     return limpiar_cuerpo(sin_plantilla), len(lineas)
+
+
+def aplicar_priores(respuesta, priores):
+    if not priores:
+        return respuesta
+    pesos = {clase: p * priores.get(clase, 0.0) for clase, p in respuesta["probabilities"].items()}
+    total = sum(pesos.values())
+    if not total:
+        return respuesta
+    probabilidades = {clase: peso / total for clase, peso in pesos.items()}
+    eleccion = max(probabilidades, key=probabilidades.get)
+    return {**respuesta, "choice": eleccion, "answer_confidence": probabilidades[eleccion], "probabilities": probabilidades}
+
+
+def spam_activado():
+    return os.environ.get("LAYA_SPAM_CHECK", "false").strip().lower() == "true"
 
 
 def decidir_issue(respuestas, cuerpo_util):
@@ -177,7 +192,13 @@ def aplicar_cambios(repo, numero, etiquetas, comentario):
 
 def main():
     evento = cargar_evento()
-    router = Router(default="multilingual")
+    if "pull_request" in evento and not spam_activado():
+        print("La revisión de spam en pull requests está desactivada: usa spam-check: true para probarla")
+        return
+
+    rutas = rutas_modelos()
+    priores = {nombre: leer_priores(carpeta) for nombre, carpeta in rutas.items()}
+    router = Router(models=rutas, default="multilingual")
 
     if "pull_request" in evento:
         item = evento["pull_request"]
@@ -192,6 +213,8 @@ def main():
         cuerpo_util, lineas_plantilla = limpiar_issue(evento, item)
         estado = {"title": item["title"], "body": cuerpo_util}
         resultado = router.predict(estado, PREGUNTAS_ISSUE)
+        modelo = resultado["routing"]["model"]
+        resultado["answers"]["tipo"] = aplicar_priores(resultado["answers"]["tipo"], priores.get(modelo))
         etiquetas, comentario = decidir_issue(resultado["answers"], cuerpo_util)
         tipo_item = "issue"
     else:
@@ -207,7 +230,7 @@ def main():
         "etiquetas": etiquetas,
         "comentario": comentario,
         "confianzas": {
-            nombre: {"choice": r["choice"], "answer_confidence": r["answer_confidence"]}
+            nombre: {"choice": r["choice"], "answer_confidence": round(r["answer_confidence"], 4)}
             for nombre, r in resultado["answers"].items()
         },
     }

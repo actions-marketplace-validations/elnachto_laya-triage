@@ -17,6 +17,10 @@ inputs:
     description: "When 'true', only print the decisions without changing the issue or pull request. Set it to 'false' to apply labels and comments"
     required: false
     default: "true"
+  spam-check:
+    description: "Experimental. When 'true', pull requests are checked for low-effort spam. Off by default because it still misses most spam"
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -44,13 +48,13 @@ runs:
       uses: actions/cache@v6
       with:
         path: ~/.cache/huggingface
-        key: laya-models-0.3.20
+        key: laya-triage-models-7d51458-cdb5ce1
 
     - if: inputs.mode != 'warm-cache'
       uses: actions/cache/restore@v6
       with:
         path: ~/.cache/huggingface
-        key: laya-models-0.3.20
+        key: laya-triage-models-7d51458-cdb5ce1
 
     - name: Install dependencies
       if: steps.venv-save.outputs.cache-hit != 'true' && steps.venv-restore.outputs.cache-hit != 'true'
@@ -63,7 +67,7 @@ runs:
     - name: Download models
       if: inputs.mode == 'warm-cache'
       shell: bash
-      run: '"$HOME/laya-venv/bin/python" -c "from laya import Router; Router().preload([''english'', ''multilingual''])"'
+      run: '"$HOME/laya-venv/bin/python" "${{ github.action_path }}/modelos.py"'
 
     - name: Run triage
       if: inputs.mode != 'warm-cache'
@@ -71,4 +75,5 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         LAYA_DRY_RUN: ${{ inputs.dry-run }}
+        LAYA_SPAM_CHECK: ${{ inputs.spam-check }}
       run: '"$HOME/laya-venv/bin/python" "${{ github.action_path }}/triage.py"'
