@@ -27,5 +27,5 @@ SPAM = {
     },
 }
 
-PREGUNTAS_ISSUE = {"tipo": TIPO, "info_suficiente": INFO_SUFICIENTE}
+PREGUNTAS_ISSUE = {"tipo": TIPO}
 PREGUNTAS_PR = {"spam": SPAM}

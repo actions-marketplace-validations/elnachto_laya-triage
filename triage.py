@@ -13,7 +13,6 @@ from plantillas import cargar_plantillas, quitar_plantilla
 from preguntas import PREGUNTAS_ISSUE, PREGUNTAS_PR
 
 UMBRAL_TIPO = 0.60
-UMBRAL_INFO = 0.75
 UMBRAL_SPAM = 0.70
 MAX_LINEAS_TRIVIAL = 5
 MIN_CARACTERES_UTILES = 30
@@ -114,13 +113,9 @@ def decidir_issue(respuestas, cuerpo_util):
     else:
         etiquetas.append("needs-triage")
 
-    if tipo["choice"] == "bug":
-        info = respuestas["info_suficiente"]
-        cuerpo_vacio = len(cuerpo_util) < MIN_CARACTERES_UTILES
-        modelo_dice_falta = info["choice"] == "B" and info["answer_confidence"] >= UMBRAL_INFO
-        if cuerpo_vacio or modelo_dice_falta:
-            etiquetas.append("needs-more-info")
-            comentario = COMENTARIO_INFO
+    if tipo["choice"] == "bug" and len(cuerpo_util) < MIN_CARACTERES_UTILES:
+        etiquetas.append("needs-more-info")
+        comentario = COMENTARIO_INFO
 
     return etiquetas, comentario
 

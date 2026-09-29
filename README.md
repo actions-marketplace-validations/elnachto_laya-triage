@@ -36,7 +36,7 @@ laya-triage is a GitHub Action that reads every new issue in your repository, la
 |---|---|---|
 | New issue | Type: bug, feature, question or docs | ![bug](https://img.shields.io/badge/bug-F2644B) ![enhancement](https://img.shields.io/badge/enhancement-2E9E68) ![question](https://img.shields.io/badge/question-6B3FE7) ![documentation](https://img.shields.io/badge/documentation-16141F) |
 | New issue | Low confidence | ![needs-triage](https://img.shields.io/badge/needs--triage-9C98AE) for a human to review |
-| New bug report | Key details are missing | ![needs-more-info](https://img.shields.io/badge/needs--more--info-6B3FE7) and a comment asking for steps, version and expected behavior |
+| New bug report | Almost no real content once the template is removed | ![needs-more-info](https://img.shields.io/badge/needs--more--info-6B3FE7) and a comment asking for steps, version and expected behavior |
 | New pull request | Trivial change that looks like spam (experimental, off by default) | ![spam-probable](https://img.shields.io/badge/spam--probable-9C98AE) and a polite comment |
 
 laya-triage never closes issues or pull requests. Maintainers keep full control over decisions.
