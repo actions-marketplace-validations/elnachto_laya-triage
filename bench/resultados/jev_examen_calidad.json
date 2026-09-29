@@ -1,0 +1,141 @@
+{
+  "modelo": "jev_examen_calidad",
+  "modelo_jev": "jev-1.13.0",
+  "variante": "sin_other",
+  "issues": 10026,
+  "issues_sin_respuesta": 0,
+  "errores": {},
+  "exactitud": 0.781,
+  "f1_macro": 0.66,
+  "umbral": 0.6,
+  "cobertura_con_umbral": 0.966,
+  "exactitud_con_umbral": 0.793,
+  "curva_prob_maxima": [
+    {
+      "umbral": 0.4,
+      "cobertura": 1.0,
+      "precision": 0.781
+    },
+    {
+      "umbral": 0.45,
+      "cobertura": 0.999,
+      "precision": 0.782
+    },
+    {
+      "umbral": 0.5,
+      "cobertura": 0.996,
+      "precision": 0.783
+    },
+    {
+      "umbral": 0.55,
+      "cobertura": 0.982,
+      "precision": 0.787
+    },
+    {
+      "umbral": 0.6,
+      "cobertura": 0.966,
+      "precision": 0.793
+    },
+    {
+      "umbral": 0.65,
+      "cobertura": 0.949,
+      "precision": 0.8
+    },
+    {
+      "umbral": 0.7,
+      "cobertura": 0.934,
+      "precision": 0.807
+    },
+    {
+      "umbral": 0.75,
+      "cobertura": 0.916,
+      "precision": 0.813
+    },
+    {
+      "umbral": 0.8,
+      "cobertura": 0.895,
+      "precision": 0.82
+    },
+    {
+      "umbral": 0.85,
+      "cobertura": 0.87,
+      "precision": 0.825
+    },
+    {
+      "umbral": 0.9,
+      "cobertura": 0.837,
+      "precision": 0.835
+    },
+    {
+      "umbral": 0.95,
+      "cobertura": 0.791,
+      "precision": 0.849
+    }
+  ],
+  "latencia_ms": {
+    "mediana": 275.8,
+    "p95": 372.5
+  },
+  "tokens_entrada": 7143510,
+  "costo_usd": 0.3,
+  "por_clase": {
+    "bug": {
+      "precision": 0.789,
+      "recall": 0.945,
+      "f1": 0.86,
+      "soporte": 5778
+    },
+    "feature": {
+      "precision": 0.799,
+      "recall": 0.726,
+      "f1": 0.761,
+      "soporte": 2272
+    },
+    "question": {
+      "precision": 0.639,
+      "recall": 0.296,
+      "f1": 0.405,
+      "soporte": 1353
+    },
+    "docs": {
+      "precision": 0.766,
+      "recall": 0.515,
+      "f1": 0.616,
+      "soporte": 623
+    }
+  },
+  "confusion": [
+    [
+      "question->bug",
+      744
+    ],
+    [
+      "feature->bug",
+      509
+    ],
+    [
+      "docs->bug",
+      203
+    ],
+    [
+      "question->feature",
+      187
+    ],
+    [
+      "bug->feature",
+      175
+    ],
+    [
+      "bug->question",
+      96
+    ],
+    [
+      "feature->question",
+      84
+    ],
+    [
+      "docs->feature",
+      52
+    ]
+  ]
+}

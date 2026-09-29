@@ -1,66 +1,66 @@
 {
-  "modelo": "modelos\\laya-triage-ml\\mejor",
-  "temperatura": 1.2034,
-  "issues_ajuste": 1400,
-  "issues_prueba": 1400,
+  "modelo": "D:\\laya\\modelos\\laya-triage-en-500k\\mejor",
+  "temperatura": 0.7433,
+  "issues_ajuste": 2500,
+  "issues_prueba": 2500,
   "sin_calibrar": {
-    "exactitud": 0.6971,
-    "ece": 0.0774,
+    "exactitud": 0.8848,
+    "ece": 0.068,
     "curva": [
       {
         "umbral": 0.4,
-        "cobertura": 0.989,
-        "precision": 0.702
+        "cobertura": 0.995,
+        "precision": 0.887
       },
       {
         "umbral": 0.45,
-        "cobertura": 0.975,
-        "precision": 0.706
+        "cobertura": 0.987,
+        "precision": 0.89
       },
       {
         "umbral": 0.5,
-        "cobertura": 0.941,
-        "precision": 0.714
+        "cobertura": 0.966,
+        "precision": 0.9
       },
       {
         "umbral": 0.55,
-        "cobertura": 0.899,
-        "precision": 0.723
+        "cobertura": 0.943,
+        "precision": 0.907
       },
       {
         "umbral": 0.6,
-        "cobertura": 0.855,
-        "precision": 0.729
+        "cobertura": 0.914,
+        "precision": 0.916
       },
       {
         "umbral": 0.65,
-        "cobertura": 0.809,
-        "precision": 0.746
+        "cobertura": 0.879,
+        "precision": 0.924
       },
       {
         "umbral": 0.7,
-        "cobertura": 0.751,
-        "precision": 0.762
+        "cobertura": 0.844,
+        "precision": 0.933
       },
       {
         "umbral": 0.75,
-        "cobertura": 0.673,
-        "precision": 0.794
+        "cobertura": 0.797,
+        "precision": 0.944
       },
       {
         "umbral": 0.8,
-        "cobertura": 0.569,
-        "precision": 0.82
+        "cobertura": 0.728,
+        "precision": 0.957
       },
       {
         "umbral": 0.85,
-        "cobertura": 0.399,
-        "precision": 0.848
+        "cobertura": 0.612,
+        "precision": 0.971
       },
       {
         "umbral": 0.9,
-        "cobertura": 0.089,
-        "precision": 0.92
+        "cobertura": 0.168,
+        "precision": 0.988
       },
       {
         "umbral": 0.95,
@@ -70,134 +70,134 @@
     ]
   },
   "calibrado": {
-    "exactitud": 0.6971,
-    "ece": 0.0527,
+    "exactitud": 0.8848,
+    "ece": 0.0248,
     "curva": [
       {
         "umbral": 0.4,
-        "cobertura": 0.983,
-        "precision": 0.703
+        "cobertura": 0.997,
+        "precision": 0.886
       },
       {
         "umbral": 0.45,
-        "cobertura": 0.956,
-        "precision": 0.711
+        "cobertura": 0.994,
+        "precision": 0.888
       },
       {
         "umbral": 0.5,
-        "cobertura": 0.906,
-        "precision": 0.721
+        "cobertura": 0.985,
+        "precision": 0.892
       },
       {
         "umbral": 0.55,
-        "cobertura": 0.854,
-        "precision": 0.731
+        "cobertura": 0.965,
+        "precision": 0.9
       },
       {
         "umbral": 0.6,
-        "cobertura": 0.801,
-        "precision": 0.747
+        "cobertura": 0.948,
+        "precision": 0.906
       },
       {
         "umbral": 0.65,
-        "cobertura": 0.724,
-        "precision": 0.77
+        "cobertura": 0.927,
+        "precision": 0.913
       },
       {
         "umbral": 0.7,
-        "cobertura": 0.626,
-        "precision": 0.806
+        "cobertura": 0.907,
+        "precision": 0.918
       },
       {
         "umbral": 0.75,
-        "cobertura": 0.501,
-        "precision": 0.836
+        "cobertura": 0.878,
+        "precision": 0.924
       },
       {
         "umbral": 0.8,
-        "cobertura": 0.302,
-        "precision": 0.875
+        "cobertura": 0.846,
+        "precision": 0.932
       },
       {
         "umbral": 0.85,
-        "cobertura": 0.042,
-        "precision": 0.983
+        "cobertura": 0.804,
+        "precision": 0.94
       },
       {
         "umbral": 0.9,
-        "cobertura": 0.0,
-        "precision": null
+        "cobertura": 0.726,
+        "precision": 0.956
       },
       {
         "umbral": 0.95,
-        "cobertura": 0.0,
-        "precision": null
+        "cobertura": 0.508,
+        "precision": 0.979
       }
     ]
   },
   "calibrado_con_priores": {
-    "exactitud": 0.6579,
-    "ece": 0.1744,
+    "exactitud": 0.8668,
+    "ece": 0.0521,
     "curva": [
       {
         "umbral": 0.4,
-        "cobertura": 0.866,
-        "precision": 0.671
+        "cobertura": 0.998,
+        "precision": 0.868
       },
       {
         "umbral": 0.45,
-        "cobertura": 0.754,
-        "precision": 0.661
+        "cobertura": 0.994,
+        "precision": 0.87
       },
       {
         "umbral": 0.5,
-        "cobertura": 0.676,
-        "precision": 0.66
+        "cobertura": 0.98,
+        "precision": 0.877
       },
       {
         "umbral": 0.55,
-        "cobertura": 0.617,
-        "precision": 0.672
+        "cobertura": 0.961,
+        "precision": 0.883
       },
       {
         "umbral": 0.6,
-        "cobertura": 0.571,
-        "precision": 0.682
+        "cobertura": 0.945,
+        "precision": 0.89
       },
       {
         "umbral": 0.65,
-        "cobertura": 0.539,
-        "precision": 0.695
+        "cobertura": 0.928,
+        "precision": 0.896
       },
       {
         "umbral": 0.7,
-        "cobertura": 0.51,
-        "precision": 0.711
+        "cobertura": 0.906,
+        "precision": 0.903
       },
       {
         "umbral": 0.75,
-        "cobertura": 0.479,
-        "precision": 0.722
+        "cobertura": 0.884,
+        "precision": 0.91
       },
       {
         "umbral": 0.8,
-        "cobertura": 0.434,
-        "precision": 0.746
+        "cobertura": 0.863,
+        "precision": 0.914
       },
       {
         "umbral": 0.85,
-        "cobertura": 0.367,
-        "precision": 0.774
+        "cobertura": 0.832,
+        "precision": 0.925
       },
       {
         "umbral": 0.9,
-        "cobertura": 0.203,
-        "precision": 0.75
+        "cobertura": 0.794,
+        "precision": 0.934
       },
       {
         "umbral": 0.95,
-        "cobertura": 0.004,
-        "precision": 1.0
+        "cobertura": 0.708,
+        "precision": 0.95
       }
     ]
   }
