@@ -3,9 +3,9 @@ from pathlib import Path
 
 TEMAS = {
     "light": dict(fondo="#FBFAFD", tinta="#16141F", suave="#5D596E", tenue="#8E8AA0", rejilla="#E9E6F0",
-                  laya="#6B3FE7", coral="#F2644B", neutro="#8A8699", pill="#EFEAFD"),
+                  laya="#6B3FE7", coral="#F2644B", neutro="#8A8699", pill="#EFEAFD", laya2="#B9A6F4"),
     "dark": dict(fondo="#16141F", tinta="#F4F2FA", suave="#B9B5C8", tenue="#8C889C", rejilla="#2A2736",
-                 laya="#8B67F5", coral="#E85A42", neutro="#6E6A80", pill="#2A2240"),
+                 laya="#8B67F5", coral="#E85A42", neutro="#6E6A80", pill="#2A2240", laya2="#56449A"),
 }
 W = 1600
 
@@ -68,9 +68,9 @@ def g_exactitud(t):
                  "laya-triage: fresh random 5,000-issue sample of the NLBSE'23 test set, measured once (±0.9 pts, 95%). Jev, Laya base, laya-issue-triage: another 5,000-issue sample of the same test set. RoBERTa / FastText: published results on the full test set.")
 
 def g_2026(t):
-    clases = [("Macro F1", .523, .660, .662), ("Bug", .615, .773, .692), ("Feature", .593, .699, .745), ("Question", .221, .387, .420), ("Docs", .665, .781, .791)]
-    ancho = W - 176; alto = 470; x0 = 60; paso = (ancho - x0) / len(clases); bw = 46; esc = lambda v: 400 - 380 * v
-    series = [(t["neutro"], 400), (t["coral"], 400), (t["laya"], 700)]
+    clases = [("Macro F1", .523, .660, .662, .734), ("Bug", .615, .773, .692, .760), ("Feature", .593, .699, .745, .779), ("Question", .221, .387, .420, .585), ("Docs", .665, .781, .791, .811)]
+    ancho = W - 176; alto = 470; x0 = 60; paso = (ancho - x0) / len(clases); bw = 50; esc = lambda v: 400 - 380 * v
+    series = [(t["neutro"], 400), (t["coral"], 400), (t["laya2"], 400), (t["laya"], 700)]
     s = [f'<svg width="{ancho}" height="{alto+40}" style="margin-top:34px">']
     for v in [0, .25, .5, .75, 1]:
         s.append(f'<line x1="{x0}" y1="{esc(v)}" x2="{ancho}" y2="{esc(v)}" stroke="{t["rejilla"]}" stroke-width="1"/>')
@@ -80,14 +80,14 @@ def g_2026(t):
         for j, (v, (c, peso)) in enumerate(zip(valores, series)):
             x = cx + (j - 1.5) * (bw + 4); y = esc(v)
             s.append(f'<path d="M{x},{esc(0)} V{y+6} Q{x},{y} {x+6},{y} H{x+bw-6} Q{x+bw},{y} {x+bw},{y+6} V{esc(0)} Z" fill="{c}"/>')
-            s.append(f'<text x="{x+bw/2}" y="{y-12}" fill="{t["tinta"]}" font-size="18" font-weight="{peso}" text-anchor="middle" style="font-family:Mono">{v:.2f}</text>')
+            s.append(f'<text x="{x+bw/2}" y="{y-12}" fill="{t["tinta"]}" font-size="16" font-weight="{peso}" text-anchor="middle" style="font-family:Mono">{v:.2f}</text>')
         s.append(f'<text x="{cx}" y="{esc(0)+40}" fill="{t["tinta"]}" font-size="24" font-weight="{700 if i==0 else 400}" text-anchor="middle">{n}</text>')
     s.append("</svg>")
     leyenda = f'<div style="display:flex;gap:32px;margin-top:30px;font-size:21px;color:{t["suave"]}">' + "".join(
         f'<span><i style="display:inline-block;width:16px;height:16px;border-radius:4px;background:{c};margin-right:10px;vertical-align:-2px"></i>{e}</span>'
-        for c, e in [(t["neutro"], "Laya base"), (t["coral"], "Jev (TypeSafe)"), (t["laya"], f'<b style="color:{t["tinta"]}">laya-triage</b>')]) + "</div>"
+        for c, e in [(t["neutro"], "Laya base"), (t["coral"], "Jev (TypeSafe)"), (t["laya2"], "laya-triage"), (t["laya"], f'<b style="color:{t["tinta"]}">laya-triage, adapted to the repo</b>')]) + "</div>"
     return marco(t, "Issues it has never seen", "2,000 issues opened in 2026 across 1,145 repositories. F1 per class, higher is better.", leyenda + "".join(s), 900,
-                 "Closed issues with a single type label, created since 2026-01-01, max 15 per repo, 500 per class. Same question and text for every model; laya-triage exactly as the action ships it.")
+                 "Closed issues with a single type label, created since 2026-01-01, max 15 per repo, 500 per class. Same question and text for every model. Adapted: class priors set to this set's mix, 25% each.")
 
 
 def g_curva(t):
@@ -147,7 +147,7 @@ def g_comparativa(t):
     no = lambda x: f'<span style="color:{t["tenue"]}">{x}</span>'
     filas = [
         ("laya-triage", "Laya fine-tuned · Action", ok("88.8%"), ok("$0"), ok("stays in your runner"), ok("none"), ok("14 measured"), ok("calibrated, abstains")),
-        ("Jev", "TypeSafe · hosted decision API", "84.4%", "~$0.024 per 1k issues", "TypeSafe's servers", "key (waitlist)", "14 measured by us", "probabilities"),
+        ("Jev", "TypeSafe · hosted decision API", "84.4%", "~$0.03 per 1k issues", "TypeSafe's servers", "key", "14 measured by us", "probabilities"),
         ("laya-issue-triage", "other Laya fine-tune · Action", "64.5%", "$0", "stays in your runner", "none", "English", "min-confidence"),
         ("NLBSE'23 research", "RoBERTa · FastText", "85.1–89.1%", no("not a GitHub tool"), "local", "none", "English", no("—")),
         ("ai-assessment-comment-labeler", "GitHub · GitHub Models", no("not published"), "$0 up to 150 req/day*", "GitHub Models", "none", no("—"), no("—")),
@@ -224,7 +224,28 @@ def g_tradeoff(t):
     return marco(t, "It knows when it is unsure", "Precision of the labels it applies. The more careful it is allowed to be, the more accurate it gets.", leyenda + "".join(s), 1060,
                  "laya-triage curve: NLBSE'23 validation (English model, calibrated). Points: test results; RoBERTa / FastText label every issue.")
 
-GRAFICAS = {"exactitud": g_exactitud, "issues-2026": g_2026, "curva": g_curva, "idiomas": g_idiomas, "comparativa": g_comparativa, "cien-issues": g_cien, "confianza": g_tradeoff}
+def g_repos(t):
+    filas = [
+        dict(nombre="laya-triage, adapted", detalle="class-priors: auto · your runner · $0", valor=79.8, destacar=True),
+        dict(nombre="Jev", detalle="TypeSafe · hosted API · $0.30", valor=78.1),
+        dict(nombre="laya-triage, not adapted", detalle="class-priors: natural", valor=76.6),
+        dict(nombre="Always bug", detalle="the most common label", valor=57.6),
+    ]
+    cuerpo = barras_h(t, filas, 100, lambda v: f"{v:.1f}%" if v not in (0, 25, 50, 75, 100) else f"{v:.0f}%")
+    fichas = [
+        ("macro F1", "0.690", "vs 0.660 for Jev"),
+        ("questions recognized", "43.7%", "vs 29.6% for Jev"),
+        ("wrong labels per 100", "16.9", "vs 20.0 for Jev"),
+    ]
+    html = "".join(
+        f'<div style="flex:1;background:{t["pill"]};border-radius:18px;padding:26px 30px"><div style="font-family:Mono;font-size:17px;color:{t["suave"]}">{a}</div><div style="font-size:52px;font-weight:700;margin-top:8px;letter-spacing:-.02em">{b}</div><div style="font-size:19px;color:{t["suave"]};margin-top:4px">{c}</div></div>'
+        for a, b, c in fichas
+    )
+    cuerpo += f'<div style="display:flex;gap:28px;margin-top:40px">{html}</div>'
+    return marco(t, "Today's issues, today's repositories", "10,026 issues from 2025-2026 in 288 active repositories with 1,000+ stars. Accuracy.", cuerpo, 1060,
+                 "Labels set by a maintainer, not by an issue template. No repository in this set was used for training. Adapted: each repository's mix estimated from its other labeled issues, as class-priors: auto does. Wrong labels counted at confidence 0.60.")
+
+GRAFICAS = {"repos-actuales": g_repos, "exactitud": g_exactitud, "issues-2026": g_2026, "curva": g_curva, "idiomas": g_idiomas, "comparativa": g_comparativa, "cien-issues": g_cien, "confianza": g_tradeoff}
 for nombre, f in GRAFICAS.items():
     for tema, t in TEMAS.items():
         Path(f"{nombre}-{tema}.html").write_text(f(t), encoding="utf-8")

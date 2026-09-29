@@ -9,6 +9,7 @@ import torch
 from laya import Router
 
 from bench.variantes import VARIANTES
+from repo import mezcla_desde_conteos, pesos_para_ruta
 from triage import UMBRAL_TIPO, limpiar_cuerpo
 
 MAPA_ETIQUETAS = {
@@ -18,6 +19,16 @@ MAPA_ETIQUETAS = {
     "documentation": "docs",
 }
 CLASES = ["bug", "feature", "question", "docs"]
+MEZCLA_NATURAL = {"bug": 0.526, "feature": 0.370, "question": 0.060, "docs": 0.044}
+
+
+def leer_objetivo(texto):
+    valores = {}
+    for parte in texto.split(","):
+        clase, valor = parte.split("=")
+        valores[clase.strip()] = float(valor)
+    total = sum(valores.values())
+    return {clase: valor / total for clase, valor in valores.items()}
 
 
 def calcular_metricas(reales, predichas):
@@ -43,10 +54,7 @@ def calcular_metricas(reales, predichas):
 def leer_priores(carpeta_modelo):
     ruta = os.path.join(carpeta_modelo, "rl_agent_config.json")
     with open(ruta, encoding="utf-8") as archivo:
-        priores = json.load(archivo).get("laya_triage", {}).get("priores")
-    if not priores:
-        raise SystemExit(f"{ruta} no tiene priores: corre primero python -m entrenamiento.calibrar --guardar")
-    return priores
+        return json.load(archivo).get("laya_triage", {}).get("priores")
 
 
 def aplicar_priores(respuesta, priores):
@@ -61,13 +69,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("muestra")
     parser.add_argument("--nombre", default="laya-base")
-    parser.add_argument("--variante", default="actual", choices=sorted(VARIANTES))
+    parser.add_argument("--variante", default="sin_other", choices=sorted(VARIANTES))
     parser.add_argument("--modelo-ingles", default="")
     parser.add_argument("--modelo-multilingue", default="")
     parser.add_argument("--limite", type=int, default=0)
     parser.add_argument("--lote", type=int, default=32)
     parser.add_argument("--dispositivo", default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--priores", action="store_true")
+    parser.add_argument("--priores-objetivo", default="")
+    parser.add_argument("--priores-por-repo", action="store_true")
     parser.add_argument("--por-defecto", default="multilingual", choices=["multilingual", "english"])
     args = parser.parse_args()
 
@@ -76,6 +86,17 @@ def main():
     if args.priores and not rutas_modelo:
         raise SystemExit("--priores necesita --modelo-ingles o --modelo-multilingue")
     priores = {ruta: leer_priores(carpeta) for ruta, carpeta in rutas_modelo.items()} if args.priores else {}
+    priores = {ruta: valores for ruta, valores in priores.items() if valores}
+    if args.priores_objetivo:
+        objetivo = leer_objetivo(args.priores_objetivo)
+        priores = {
+            ruta: (objetivo if ruta in priores else {c: objetivo[c] / MEZCLA_NATURAL[c] for c in objetivo})
+            for ruta in rutas_modelo
+        }
+        print(f"Mezcla objetivo: {objetivo}")
+    if args.priores:
+        for ruta in rutas_modelo:
+            print(f"Ruta {ruta}: {'con priores' if ruta in priores else 'sin priores'}")
 
     pregunta = VARIANTES[args.variante]
     datos = pd.read_csv(args.muestra).fillna("")
@@ -95,12 +116,26 @@ def main():
     resultados = router.predict_batch(peticiones, batch_size=args.lote)
     segundos = time.perf_counter() - inicio
 
+    por_repo = []
+    if args.priores_por_repo:
+        conteos_repo = {}
+        for repo_issue, real in zip(datos["repo"], reales):
+            conteos_repo.setdefault(repo_issue, {c: 0 for c in CLASES})[real] += 1
+        for repo_issue, real in zip(datos["repo"], reales):
+            historial = dict(conteos_repo[repo_issue])
+            historial[real] -= 1
+            por_repo.append(mezcla_desde_conteos(historial))
+        adaptados = sum(m is not None for m in por_repo)
+        print(f"Issues con historial suficiente en su repo: {adaptados} de {len(por_repo)}")
+
     predichas = []
     confianzas = []
-    for r in resultados:
+    for i, r in enumerate(resultados):
         respuesta = r["answers"]["tipo"]
         ruta = r["routing"]["model"]
-        if ruta in priores:
+        if por_repo and por_repo[i]:
+            eleccion, confianza = aplicar_priores(respuesta, pesos_para_ruta(por_repo[i], priores.get(ruta)))
+        elif ruta in priores:
             eleccion, confianza = aplicar_priores(respuesta, priores[ruta])
         else:
             eleccion, confianza = respuesta["choice"], respuesta["answer_confidence"]

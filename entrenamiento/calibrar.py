@@ -71,6 +71,8 @@ def main():
     parser.add_argument("--validacion", default="datos/validacion.csv")
     parser.add_argument("--variante", default="sin_other", choices=sorted(VARIANTES))
     parser.add_argument("--guardar", action="store_true")
+    parser.add_argument("--sin-priores", action="store_true")
+    parser.add_argument("--nombre", default="calibracion")
     args = parser.parse_args()
 
     dispositivo = "cuda" if torch.cuda.is_available() else "cpu"
@@ -97,7 +99,7 @@ def main():
     }
 
     os.makedirs("bench/resultados", exist_ok=True)
-    with open("bench/resultados/calibracion.json", "w", encoding="utf-8") as archivo:
+    with open(f"bench/resultados/{args.nombre}.json", "w", encoding="utf-8") as archivo:
         json.dump(informe, archivo, indent=2, ensure_ascii=False)
     print(json.dumps(informe, indent=2, ensure_ascii=False))
 
@@ -107,10 +109,13 @@ def main():
             config = json.load(archivo)
         config["temperature"] = [round(temperatura, 4), 1.0, 1.0]
         config.pop("temperature_by_options", None)
-        config.setdefault("laya_triage", {})["priores"] = {c: PRIORES_REALES[c] for c in claves}
+        if args.sin_priores:
+            config.get("laya_triage", {}).pop("priores", None)
+        else:
+            config.setdefault("laya_triage", {})["priores"] = {c: PRIORES_REALES[c] for c in claves}
         with open(ruta, "w", encoding="utf-8") as archivo:
             json.dump(config, archivo, indent=2, ensure_ascii=False)
-        print(f"Temperatura {temperatura:.4f} guardada en {ruta}")
+        print(f"Temperatura {temperatura:.4f} guardada en {ruta}" + (" sin priores" if args.sin_priores else " con priores"))
 
 
 if __name__ == "__main__":

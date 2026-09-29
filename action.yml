@@ -21,6 +21,14 @@ inputs:
     description: "Experimental. When 'true', pull requests are checked for low-effort spam. Off by default because it still misses most spam"
     required: false
     default: "false"
+  class-priors:
+    description: "How common each issue type is in your repository. 'auto' counts your labeled issues, 'natural' uses the typical GitHub mix, or give your own, like 'bug=0.5,feature=0.3,question=0.15,docs=0.05'"
+    required: false
+    default: "auto"
+  labels:
+    description: "Label names to use. 'auto' reuses your existing labels (for example 'type: bug' or 'kind/feature'), or map them yourself, like 'bug=type: bug,feature=feature request'"
+    required: false
+    default: "auto"
 
 runs:
   using: "composite"
@@ -76,4 +84,6 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         LAYA_DRY_RUN: ${{ inputs.dry-run }}
         LAYA_SPAM_CHECK: ${{ inputs.spam-check }}
+        LAYA_CLASS_PRIORS: ${{ inputs.class-priors }}
+        LAYA_LABELS: ${{ inputs.labels }}
       run: '"$HOME/laya-venv/bin/python" "${{ github.action_path }}/triage.py"'

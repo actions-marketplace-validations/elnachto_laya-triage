@@ -11,6 +11,10 @@ from laya import Router
 from modelos import leer_priores, rutas_modelos
 from plantillas import cargar_plantillas, quitar_plantilla
 from preguntas import PREGUNTAS_ISSUE, PREGUNTAS_PR
+from repo import (
+    contar_issues, etiquetas_del_repo, leer_pares, mapear_etiquetas, mezcla_desde_conteos, mezcla_manual,
+    pesos_para_ruta,
+)
 
 UMBRAL_TIPO = 0.60
 UMBRAL_SPAM = 0.70
@@ -99,17 +103,39 @@ def aplicar_priores(respuesta, priores):
     return {**respuesta, "choice": eleccion, "answer_confidence": probabilidades[eleccion], "probabilities": probabilidades}
 
 
+def configuracion_del_repo(repo, token):
+    modo_etiquetas = os.environ.get("LAYA_LABELS", "auto").strip()
+    modo_priores = os.environ.get("LAYA_CLASS_PRIORS", "auto").strip()
+    existentes = etiquetas_del_repo(repo, token) if repo and token else []
+    mapa = mapear_etiquetas(existentes)
+
+    nombres = dict(ETIQUETAS_TIPO)
+    if modo_etiquetas.lower() == "auto":
+        nombres.update(mapa)
+    else:
+        nombres.update({t: n for t, n in leer_pares(modo_etiquetas).items() if t in ETIQUETAS_TIPO})
+
+    mezcla = None
+    if modo_priores.lower() == "auto":
+        conteos = contar_issues(repo, token, mapa) if repo and token and mapa else None
+        mezcla = mezcla_desde_conteos(conteos) if conteos else None
+    elif modo_priores.lower() != "natural":
+        mezcla = mezcla_manual(modo_priores)
+    return nombres, mezcla
+
+
 def spam_activado():
     return os.environ.get("LAYA_SPAM_CHECK", "false").strip().lower() == "true"
 
 
-def decidir_issue(respuestas, cuerpo_util):
+def decidir_issue(respuestas, cuerpo_util, nombres=None):
     etiquetas = []
     comentario = None
+    nombres = nombres or ETIQUETAS_TIPO
 
     tipo = respuestas["tipo"]
     if tipo["answer_confidence"] >= UMBRAL_TIPO:
-        etiquetas.append(ETIQUETAS_TIPO[tipo["choice"]])
+        etiquetas.append(nombres[tipo["choice"]])
     else:
         etiquetas.append("needs-triage")
 
@@ -199,6 +225,7 @@ def main():
         item = evento["pull_request"]
         cuerpo_util = limpiar_cuerpo(item.get("body"))
         lineas_plantilla = 0
+        mezcla = None
         estado = {"title": item["title"], "body": cuerpo_util}
         resultado = router.predict(estado, PREGUNTAS_PR)
         etiquetas, comentario = decidir_pr(item, resultado["answers"])
@@ -206,11 +233,14 @@ def main():
     elif "issue" in evento:
         item = evento["issue"]
         cuerpo_util, lineas_plantilla = limpiar_issue(evento, item)
+        repo = evento.get("repository", {}).get("full_name") or os.environ.get("GITHUB_REPOSITORY")
+        nombres, mezcla = configuracion_del_repo(repo, os.environ.get("GITHUB_TOKEN"))
         estado = {"title": item["title"], "body": cuerpo_util}
         resultado = router.predict(estado, PREGUNTAS_ISSUE)
         modelo = resultado["routing"]["model"]
-        resultado["answers"]["tipo"] = aplicar_priores(resultado["answers"]["tipo"], priores.get(modelo))
-        etiquetas, comentario = decidir_issue(resultado["answers"], cuerpo_util)
+        pesos = pesos_para_ruta(mezcla, priores.get(modelo))
+        resultado["answers"]["tipo"] = aplicar_priores(resultado["answers"]["tipo"], pesos)
+        etiquetas, comentario = decidir_issue(resultado["answers"], cuerpo_util, nombres)
         tipo_item = "issue"
     else:
         sys.exit("Evento no soportado: solo issues y pull requests")
@@ -221,6 +251,7 @@ def main():
         "titulo": item["title"],
         "modelo": resultado["routing"]["model"],
         "lineas_plantilla": lineas_plantilla,
+        "mezcla_repo": {t: round(v, 3) for t, v in mezcla.items()} if mezcla else None,
         "caracteres_utiles": len(cuerpo_util),
         "etiquetas": etiquetas,
         "comentario": comentario,
