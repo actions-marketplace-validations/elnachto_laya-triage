@@ -22,7 +22,7 @@ inputs:
     required: false
     default: "false"
   class-priors:
-    description: "How common each issue type is in your repository. 'auto' counts your labeled issues, 'natural' uses the typical GitHub mix, or give your own, like 'bug=0.5,feature=0.3,question=0.15,docs=0.05'"
+    description: "How common each issue type is in your repository. 'auto' counts the issues you labeled in the last year, 'natural' uses the typical GitHub mix, or give your own, like 'bug=0.5,feature=0.3,question=0.15,docs=0.05'"
     required: false
     default: "auto"
   labels:

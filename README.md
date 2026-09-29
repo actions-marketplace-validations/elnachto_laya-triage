@@ -154,7 +154,7 @@ The confidence is calibrated. When laya-triage says 90%, it is right about 90% o
 | `mode` | `"triage"` | Use `"warm-cache"` to download the models and save them in the cache |
 | `github-token` | `github.token` | Token used to add labels and comments |
 | `spam-check` | `"false"` | Experimental. Set to `"true"` to check new pull requests for low-effort spam |
-| `class-priors` | `"auto"` | How common each issue type is in your repository. `"auto"` counts your already labeled issues, `"natural"` uses the typical GitHub mix, or pass your own, like `"bug=0.5,feature=0.3,question=0.15,docs=0.05"` |
+| `class-priors` | `"auto"` | How common each issue type is in your repository. `"auto"` counts the issues you labeled in the last year, `"natural"` uses the typical GitHub mix, or pass your own, like `"bug=0.5,feature=0.3,question=0.15,docs=0.05"` |
 | `labels` | `"auto"` | `"auto"` reuses your existing type labels (such as `type: bug` or `kind/feature`) instead of creating new ones. You can also map them yourself: `"bug=type: bug,feature=feature request"` |
 
 To try the spam check, also listen to pull requests and give the workflow write access to them:
@@ -211,7 +211,7 @@ With a GitHub App token, the workflow only needs `contents: read`.
 2. It removes your repository's issue template boilerplate, so only what the author actually wrote is classified.
 3. The Laya router sends English issues to [laya-triage-en](https://huggingface.co/elnachto/laya-triage-en) and other languages to [laya-triage-multilingual](https://huggingface.co/elnachto/laya-triage-multilingual). Both are downloaded at a fixed revision, so `@v1` always uses the exact models that were measured.
 4. The model answers in a single forward pass on the runner's CPU. The English model was trained on the real mix of GitHub issues. The multilingual model was trained on balanced classes, so its answer is adjusted with class priors, because real repositories get far more bugs and feature requests than questions.
-5. The answer is adjusted to your repository: the action counts how many of your labeled issues are bugs, feature requests, questions and docs, so a repository full of questions gets more `question` labels.
+5. The answer is adjusted to your repository: the action counts how many of the issues you labeled in the last year are bugs, feature requests, questions and docs, so a repository full of questions gets more `question` labels.
 6. If the confidence is at least 0.60, the label is applied, using your own label names when you already have them. Otherwise the issue gets `needs-triage`.
 
 ## Security
@@ -226,7 +226,7 @@ With a GitHub App token, the workflow only needs `contents: read`.
 - **question** and **docs** are the hardest classes (F1 around 0.6 to 0.7). Many questions read like bug reports, and questions are rare in real repositories, so the model is cautious about predicting them. Repositories that receive mostly questions will see some of them labeled as bugs.
 - The best published result on this benchmark is the NLBSE'23 RoBERTa baseline (89.1%), trained on about 1.27M issues. laya-triage is 0.3 points behind, within the margin of error, while running on a free CPU runner.
 - Issues written today are harder than the NLBSE'23 test set. Without adapting to the repository, laya-triage and Jev are level on issues from 2026 and Jev is ahead on recent issues from active repositories; adapting to each repository puts laya-triage ahead on both.
-- `class-priors: auto` needs at least 30 labeled issues and counts every labeled issue, including the ones laya-triage labeled itself. If most of your labels come from the action, set the mix by hand.
+- `class-priors: auto` needs at least 30 issues labeled in the last year and counts every one of them, including the ones laya-triage labeled itself. If most of your labels come from the action, set the mix by hand.
 - The multilingual model was trained on machine-translated issues. It is measured on 14 languages; other languages work through the base model but aren’t evaluated.
 - The spam check is experimental: on our pull request data it catches only a small share of spam, which is why it is off by default.
 - Bug reports with less than 30 characters of real content get `needs-more-info`. Very short but complete reports may also get this label.

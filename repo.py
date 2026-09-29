@@ -3,10 +3,12 @@ import re
 import urllib.error
 import urllib.parse
 import urllib.request
+from datetime import date, timedelta
 
 MEZCLA_NATURAL = {"bug": 0.526, "feature": 0.370, "question": 0.060, "docs": 0.044}
 PESO_NATURAL = 50
 MINIMO_ETIQUETADOS = 30
+DIAS_HISTORIAL = 365
 
 SINONIMOS = {
     "bug": ["bug", "type bug", "kind bug", "t bug", "bug report", "confirmed bug"],
@@ -74,8 +76,9 @@ def leer_pares(texto):
 
 def contar_issues(repo, token, mapa):
     conteos = {}
+    desde = (date.today() - timedelta(days=DIAS_HISTORIAL)).isoformat()
     for tipo, etiqueta in mapa.items():
-        consulta = urllib.parse.quote(f'repo:{repo} is:issue label:"{etiqueta}"')
+        consulta = urllib.parse.quote(f'repo:{repo} is:issue label:"{etiqueta}" created:>={desde}')
         datos = consultar(f"/search/issues?q={consulta}&per_page=1", token)
         if datos is None:
             return None
