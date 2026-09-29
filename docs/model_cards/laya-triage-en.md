@@ -22,24 +22,26 @@ Runs in a single forward pass on CPU or GPU. No API key, no text generation, and
 
 ## Results
 
-NLBSE'23 issue report classification, random 5,000-issue sample of the official test set, measured once after every decision was frozen on the validation split. ±0.9 points at 95%.
+NLBSE'23 issue report classification. 5,000 issues sampled at random from the official test set, never used before, measured once after every decision was frozen on the validation split. ±0.9 points at 95%.
 
 | System | Accuracy (= micro F1) | Macro F1 |
 |---|---|---|
-| RoBERTa, NLBSE'23 official baseline (trained on ~1.27M issues) | 89.1% | — |
-| **laya-triage (this model + multilingual, with class priors)** | **86.8%** | **0.756** |
+| RoBERTa, NLBSE'23 official baseline (full test set, trained on ~1.27M issues) | 89.1% | — |
+| **laya-triage (this model + multilingual)** | **88.8%** | **0.779** |
 | FastText, NLBSE'23 official baseline | 85.1% | — |
-| Jev (TypeSafe, hosted), measured by us | 84.4% | 0.704 |
-| Laya base, same question | 75.9% | — |
-| harikarthikmanyam/laya-issue-triage, measured by us | 64.5% | 0.547 |
+| Jev (TypeSafe, hosted), measured by us* | 84.4% | 0.704 |
+| Laya base, same question* | 75.9% | — |
+| harikarthikmanyam/laya-issue-triage, measured by us* | 64.5% | 0.547 |
 
-On the 4,775 test issues the router sends to this English model: 87.0% accuracy, macro F1 0.759.
+\* Measured on a different random 5,000-issue sample of the same test set.
 
-Per class (whole system): bug 0.907 · feature 0.879 · question 0.595 · docs 0.642.
+laya-triage is within the margin of error of the RoBERTa baseline while running on a free CPU runner. On the 4,807 test issues the router sends to this English model: 89.0% accuracy, macro F1 0.783.
 
-**Selective labeling.** With confidence ≥ 0.60 it labels 91.7% of issues at 90.2% precision and leaves the rest for a maintainer. Stricter thresholds reach ~97% precision on about half of the issues.
+Per class (whole system): bug 0.925 · feature 0.895 · question 0.602 · docs 0.696.
 
-**Issues it has never seen.** 2,000 closed issues opened in 2026 across 1,145 repositories (500 per class): macro F1 0.725 vs 0.523 for Laya base and 0.660 for Jev.
+**Selective labeling.** With confidence ≥ 0.60 it labels 94.1% of issues at 91.1% precision and leaves the rest for a maintainer. On the validation split, a 0.95 threshold labels about half of the issues at 98% precision.
+
+**Issues it has never seen.** 2,000 closed issues opened in 2026 across 1,145 repositories, 500 per class: macro F1 0.662, level with Jev (0.660) and far ahead of Laya base (0.523). This set is balanced on purpose, so it weighs questions four times more than a typical repository; with the natural class mix the same results correspond to about 84% accuracy.
 
 ## How to use
 
@@ -68,22 +70,29 @@ answer = result["answers"]["type"]
 print(answer["choice"], answer["answer_confidence"])
 ```
 
-### Class priors
+### Class balance
 
-The model was trained on balanced classes. Real repositories are not balanced, so the reported numbers multiply the probabilities by the class priors stored in `rl_agent_config.json` (`laya_triage.priores`: bug 0.526, feature 0.370, question 0.060, docs 0.044) and renormalize. If your repository has a very different mix (for example many questions), skip the priors or use your own.
+This model was trained on the natural class mix of GitHub issues (bug 52.6%, feature 37.0%, question 5.9%, docs 4.4%), so it needs no class priors. If your repository receives a very different mix, for example mostly questions, multiply the probabilities by your own class frequencies divided by these and renormalize.
 
 ## Training
 
 - Base: `convaiinnovations/laya` (English checkpoint, 421M parameters).
-- Data: 150,000 issues from the NLBSE'23 training set, 37,500 per class; validation and test issues excluded.
-- One epoch, AdamW, lr 2.5e-5 encoder / 1e-4 head, label smoothing 0.1, bf16 on a single RTX 5070. The second epoch overfit and was discarded.
+- Data: 1,000,000 issues from the NLBSE'23 training set at their natural class distribution; validation and test issues excluded.
+- One epoch (12 hours on a single RTX 5070), AdamW, lr 2.5e-5 encoder / 1e-4 head, label smoothing 0.1, bf16.
 - Issue bodies cleaned of template boilerplate and truncated to 1,500 characters.
-- Calibration: temperature 0.741 fitted on half of the validation split (ECE 0.083 → 0.022 with priors).
+- Calibration: temperature 0.737 fitted on half of the validation split (ECE 0.068 → 0.027). Label smoothing made the raw model underconfident; the temperature restores its confidence.
 - Weights stored in bf16; predictions match the float32 checkpoint on the verification sample.
+
+| Training issues | Validation accuracy |
+|---|---|
+| 150,000 (balanced, with priors) | 86.8% |
+| 500,000 (natural mix) | 88.1% |
+| 1,000,000 (natural mix) | 88.4% |
 
 ## Limitations
 
-- **question** and **docs** are the hardest classes (F1 ≈ 0.6). Many "questions" read like bug reports.
+- **question** and **docs** are the hardest classes (F1 around 0.6 to 0.7). Many questions read like bug reports, and the model rarely predicts question because questions are rare in its training data.
+- Issues written in 2026 are harder than the NLBSE'23 test set, which is older.
 - Trained on English issues; non-English text should go to the multilingual model (the router does this automatically).
 - Labels come from maintainers' GitHub labels, which are noisy: some issues are labeled inconsistently across projects.
 - Not a spam or security classifier.

@@ -55,7 +55,7 @@ The same 500 NLBSE'23 validation issues, machine-translated with NLLB-200 into 1
 
 laya-triage and Jev are within noise of each other across languages; both are far ahead of the untuned base.
 
-Translations can flatter a model trained on translations, so we also checked real issues: on 367 non-English issues opened in 2026 (never seen, written by people, not translated) accuracy went from **47.1% to 65.7%**.
+Translations can flatter a model trained on translations, so we also checked real issues: on 367 non-English issues opened in 2026 (never seen, written by people, not translated) accuracy went from **47.1% to 65.7%** without class priors, and to 61.0% with the priors the action applies. That set is balanced on purpose, which penalizes priors; on typical repositories the priors help.
 
 ## How to use
 
@@ -73,7 +73,7 @@ Use it through the Laya router together with the English model, with the exact t
 
 - Machine-translated training data: real issues mix languages, code and English error messages more than translations do.
 - 13 languages measured; others are supported by the base model but not evaluated.
-- Same class-prior note as the English model.
+- Trained on balanced classes, so it expects class priors: multiply the probabilities by the priors stored in `rl_agent_config.json` (`laya_triage.priores`: bug 0.526, feature 0.370, question 0.060, docs 0.044) and renormalize, as the action does.
 
 ## Credits
 

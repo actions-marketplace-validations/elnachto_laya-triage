@@ -5,8 +5,8 @@ from huggingface_hub import snapshot_download
 from huggingface_hub.errors import LocalEntryNotFoundError
 
 MODELOS = {
-    "english": ("elnachto/laya-triage-en", "7d514587f82a14d72ae5850d96bf6c5c28897b39"),
-    "multilingual": ("elnachto/laya-triage-multilingual", "cdb5ce1293d2c570af22bfb3af406535da6906ae"),
+    "english": ("elnachto/laya-triage-en", "2b87cb41ba78f6192c711ab3fd331b6133eadc41"),
+    "multilingual": ("elnachto/laya-triage-multilingual", "194786c14ecec3105333662e6e5de8e61b6708ae"),
 }
 
 ARCHIVOS = ["rl_agent_config.json", "model.safetensors", "tokenizer/*", "encoder/*"]

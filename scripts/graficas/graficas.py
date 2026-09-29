@@ -51,7 +51,7 @@ def barras_h(t, filas, maximo, formato, ancho=W - 176, alto_fila=78, etiqueta_an
 def g_exactitud(t):
     filas = [
         dict(nombre="RoBERTa", detalle="NLBSE'23 baseline · trained on 1.27M issues", valor=89.1),
-        dict(nombre="laya-triage", detalle="your runner · no API key", valor=86.8, destacar=True),
+        dict(nombre="laya-triage", detalle="your runner · no API key", valor=88.8, destacar=True),
         dict(nombre="FastText", detalle="NLBSE'23 baseline", valor=85.1),
         dict(nombre="Jev", detalle="TypeSafe · hosted API · measured by us", valor=84.4),
         dict(nombre="Laya base", detalle="same router, not fine-tuned", valor=75.9),
@@ -60,15 +60,15 @@ def g_exactitud(t):
     cuerpo = barras_h(t, filas, 100, lambda v: f"{v:.1f}%" if v not in (0, 25, 50, 75, 100) else f"{v:.0f}%")
     cuerpo += f'''<div style="display:flex;gap:28px;margin-top:40px">
 {"".join(f'<div style="flex:1;background:{t["pill"]};border-radius:18px;padding:26px 30px"><div style="font-family:Mono;font-size:17px;color:{t["suave"]}">{a}</div><div style="font-size:52px;font-weight:700;margin-top:8px;letter-spacing:-.02em">{b}</div><div style="font-size:19px;color:{t["suave"]};margin-top:4px">{c}</div></div>' for a,b,c in [
-("issues labeled automatically","91.7%","vs 57.1% for Laya base"),
-("precision on those labels","90.2%","it abstains when unsure"),
-("time per issue","~35 s","on a free GitHub runner")])}
+("issues labeled automatically","94.1%","vs 57.1% for Laya base"),
+("precision on those labels","91.1%","it abstains when unsure"),
+("time per run","< 40 s","on a free GitHub runner")])}
 </div>'''
     return marco(t, "Issue type accuracy", "Bug · feature · question · docs on NLBSE'23 issues, 4 classes.", cuerpo, 1160,
-                 "laya-triage, Jev, Laya base, laya-issue-triage: random 5,000-issue sample of the NLBSE'23 test set, measured once (±0.9 pts, 95%). RoBERTa / FastText: published results on the full test set.")
+                 "laya-triage: fresh random 5,000-issue sample of the NLBSE'23 test set, measured once (±0.9 pts, 95%). Jev, Laya base, laya-issue-triage: another 5,000-issue sample of the same test set. RoBERTa / FastText: published results on the full test set.")
 
 def g_2026(t):
-    clases = [("Macro F1", .523, .660, .725), ("Bug", .615, .773, .752), ("Feature", .593, .699, .751), ("Question", .221, .387, .594), ("Docs", .665, .781, .803)]
+    clases = [("Macro F1", .523, .660, .662), ("Bug", .615, .773, .692), ("Feature", .593, .699, .745), ("Question", .221, .387, .420), ("Docs", .665, .781, .791)]
     ancho = W - 176; alto = 470; x0 = 60; paso = (ancho - x0) / len(clases); bw = 46; esc = lambda v: 400 - 380 * v
     series = [(t["neutro"], 400), (t["coral"], 400), (t["laya"], 700)]
     s = [f'<svg width="{ancho}" height="{alto+40}" style="margin-top:34px">']
@@ -87,32 +87,29 @@ def g_2026(t):
         f'<span><i style="display:inline-block;width:16px;height:16px;border-radius:4px;background:{c};margin-right:10px;vertical-align:-2px"></i>{e}</span>'
         for c, e in [(t["neutro"], "Laya base"), (t["coral"], "Jev (TypeSafe)"), (t["laya"], f'<b style="color:{t["tinta"]}">laya-triage</b>')]) + "</div>"
     return marco(t, "Issues it has never seen", "2,000 issues opened in 2026 across 1,145 repositories. F1 per class, higher is better.", leyenda + "".join(s), 900,
-                 "Closed issues with a single type label, created since 2026-01-01, max 15 per repo, 500 per class. Same question and text for every model.")
+                 "Closed issues with a single type label, created since 2026-01-01, max 15 per repo, 500 per class. Same question and text for every model; laya-triage exactly as the action ships it.")
 
 
 def g_curva(t):
-    series = [("40k issues", t["coral"], [78.76, 80.88, 81.72, 78.28]), ("150k issues", t["laya"], [78.76, 82.44, 82.12])]
-    ancho = W - 176; alto = 520; x0, x1 = 70, ancho - 230; lo, hi = 76, 84
+    puntos = [("40k", 85.6, "balanced + priors"), ("150k", 86.8, "balanced + priors"), ("500k", 88.1, "natural mix"), ("1M", 88.4, "natural mix")]
+    ancho = W - 176; alto = 520; x0, x1 = 90, ancho - 120; lo, hi = 84, 90
     ex = lambda i: x0 + (x1 - x0) * i / 3; ey = lambda v: 470 - 440 * (v - lo) / (hi - lo)
     s = [f'<svg width="{ancho}" height="{alto+30}" style="margin-top:40px">']
-    for v in range(lo, hi + 1, 2):
-        s.append(f'<line x1="{x0}" y1="{ey(v)}" x2="{x1+20}" y2="{ey(v)}" stroke="{t["rejilla"]}" stroke-width="1"/>')
-        s.append(f'<text x="{x0-14}" y="{ey(v)+6}" fill="{t["tenue"]}" font-size="17" text-anchor="end" style="font-family:Mono">{v}%</text>')
-    for i, n in enumerate(["base", "epoch 1", "epoch 2", "epoch 3"]):
-        s.append(f'<text x="{ex(i)}" y="{alto+10}" fill="{t["tenue"]}" font-size="18" text-anchor="middle" style="font-family:Mono">{n}</text>')
-    for nombre, c, vals in series:
-        pts = " ".join(f"{ex(i)},{ey(v)}" for i, v in enumerate(vals))
-        s.append(f'<polyline points="{pts}" fill="none" stroke="{c}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>')
-        for i, v in enumerate(vals):
-            s.append(f'<circle cx="{ex(i)}" cy="{ey(v)}" r="7" fill="{c}" stroke="{t["fondo"]}" stroke-width="3"/>')
-        k = len(vals) - 1
-        s.append(f'<text x="{ex(k)+22}" y="{ey(vals[k])+8}" fill="{t["tinta"]}" font-size="22" style="font-family:Mono">{vals[k]:.1f}%  <tspan fill="{t["suave"]}" style="font-family:Bri">{nombre}</tspan></text>')
-    s.append(f'<text x="{ex(1)}" y="{ey(82.44)-24}" fill="{t["tinta"]}" font-size="20" font-weight="700" text-anchor="middle">best · 82.4%</text>')
-    s.append(f'<text x="{ex(3)}" y="{ey(78.28)+44}" fill="{t["suave"]}" font-size="19" text-anchor="middle">memorizing, not learning</text>')
+    for v in range(lo, hi + 1, 1):
+        s.append(f'<line x1="{x0-20}" y1="{ey(v)}" x2="{x1+20}" y2="{ey(v)}" stroke="{t["rejilla"]}" stroke-width="1"/>')
+        s.append(f'<text x="{x0-34}" y="{ey(v)+6}" fill="{t["tenue"]}" font-size="17" text-anchor="end" style="font-family:Mono">{v}%</text>')
+    s.append(f'<line x1="{x0-20}" y1="{ey(89.1)}" x2="{x1+20}" y2="{ey(89.1)}" stroke="{t["neutro"]}" stroke-width="2" stroke-dasharray="8 8"/>')
+    s.append(f'<text x="{x0-10}" y="{ey(89.1)-14}" fill="{t["suave"]}" font-size="19">RoBERTa, NLBSE\'23 baseline · 89.1%</text>')
+    pts = " ".join(f"{ex(i)},{ey(v)}" for i, (_, v, _) in enumerate(puntos))
+    s.append(f'<polyline points="{pts}" fill="none" stroke="{t["laya"]}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>')
+    for i, (n, v, d) in enumerate(puntos):
+        s.append(f'<circle cx="{ex(i)}" cy="{ey(v)}" r="8" fill="{t["laya"]}" stroke="{t["fondo"]}" stroke-width="3"/>')
+        s.append(f'<text x="{ex(i)}" y="{ey(v)+40}" fill="{t["tinta"]}" font-size="22" font-weight="{700 if i == 3 else 400}" text-anchor="middle" style="font-family:Mono">{v:.1f}%</text>')
+        s.append(f'<text x="{ex(i)}" y="{alto-2}" fill="{t["tinta"]}" font-size="22" text-anchor="middle" style="font-family:Mono">{n}</text>')
+        s.append(f'<text x="{ex(i)}" y="{alto+24}" fill="{t["tenue"]}" font-size="17" text-anchor="middle">{d}</text>')
     s.append("</svg>")
-    leyenda = f'<div style="display:flex;gap:32px;margin-top:30px;font-size:21px;color:{t["suave"]}"><span><i style="display:inline-block;width:26px;height:4px;border-radius:2px;background:{t["coral"]};margin-right:10px;vertical-align:5px"></i>40k training issues</span><span><i style="display:inline-block;width:26px;height:4px;border-radius:2px;background:{t["laya"]};margin-right:10px;vertical-align:5px"></i>150k training issues</span></div>'
-    return marco(t, "One pass over more data wins", "Validation accuracy while fine-tuning Laya on an RTX 5070, before calibration.", leyenda + "".join(s), 1000,
-                 "5,000 validation issues, natural class mix. The best epoch is kept automatically; calibration + class priors add ~4 points on top.")
+    return marco(t, "More data, closer to the baseline", "Validation accuracy of the English model by number of training issues.", "".join(s), 960,
+                 "5,000 NLBSE'23 validation issues, natural class mix. One epoch each on a single RTX 5070; 1M issues took 12 hours.")
 
 def g_idiomas(t):
     datos = [("English", 89.2, 88.2, 90.6), ("German", 74.6, 85.8, 87.4), ("Vietnamese", 71.2, 84.4, 86.6), ("Chinese", 68.2, 83.8, 86.2),
@@ -149,7 +146,7 @@ def g_comparativa(t):
     ok = lambda x: f'<span style="color:{t["tinta"]};font-weight:700">{x}</span>'
     no = lambda x: f'<span style="color:{t["tenue"]}">{x}</span>'
     filas = [
-        ("laya-triage", "Laya fine-tuned · Action", ok("86.8%"), ok("$0"), ok("stays in your runner"), ok("none"), ok("14 measured"), ok("calibrated, abstains")),
+        ("laya-triage", "Laya fine-tuned · Action", ok("88.8%"), ok("$0"), ok("stays in your runner"), ok("none"), ok("14 measured"), ok("calibrated, abstains")),
         ("Jev", "TypeSafe · hosted decision API", "84.4%", "~$0.024 per 1k issues", "TypeSafe's servers", "key (waitlist)", "14 measured by us", "probabilities"),
         ("laya-issue-triage", "other Laya fine-tune · Action", "64.5%", "$0", "stays in your runner", "none", "English", "min-confidence"),
         ("NLBSE'23 research", "RoBERTa · FastText", "85.1–89.1%", no("not a GitHub tool"), "local", "none", "English", no("—")),
@@ -169,10 +166,10 @@ def g_comparativa(t):
         trs.append(f'<tr style="background:{fondo};border-top:{borde}"><td style="padding:22px 14px 22px 24px;border-radius:16px 0 0 16px"><div style="font-size:23px;font-weight:{700 if i==0 else 400}">{marca}{f[0]}</div><div style="font-family:Mono;font-size:15px;color:{t["tenue"]};margin-top:6px">{f[1]}</div></td>{celdas}</tr>')
     tabla = f'<table style="width:100%;border-collapse:collapse;margin-top:44px;color:{t["tinta"]}"><tr><th></th>{th}</tr>{"".join(trs)}</table>'
     return marco(t, "Why laya-triage", "Issue triage for GitHub, compared on what maintainers actually care about.", tabla, 1330,
-                 "Accuracy for laya-triage, Jev and laya-issue-triage measured by us on the same test sample. Figures as of Sep 2026, from each project's docs. * GitHub Models free tier, low-tier models. † the project's own gpt-4o-mini estimate. — not published.")
+                 "Accuracy for laya-triage, Jev and laya-issue-triage measured by us on random 5,000-issue samples of the NLBSE'23 test set. Figures as of Sep 2026, from each project's docs. * GitHub Models free tier, low-tier models. † the project's own gpt-4o-mini estimate. — not published.")
 
 def g_cien(t):
-    modelos = [("Laya base", 50.9, 6.2, 42.9), ("Jev", 82.4, 12.7, 4.9), ("laya-triage", 82.7, 9.0, 8.3)]
+    modelos = [("Laya base", 50.9, 6.2, 42.9), ("Jev", 82.4, 12.7, 4.9), ("laya-triage", 85.7, 8.4, 5.9)]
     ancho = W - 176; x0 = 250; x1 = ancho - 20; esc = lambda v: (x1 - x0) * v / 100
     s = [f'<svg width="{ancho}" height="470" style="margin-top:56px">']
     for i, (n, bien, mal, humano) in enumerate(modelos):
@@ -191,12 +188,12 @@ def g_cien(t):
         f'<span><i style="display:inline-block;width:16px;height:16px;border-radius:4px;background:{c};margin-right:10px;vertical-align:-2px"></i>{e}</span>'
         for c, e in [(t["laya"], "labeled right, automatically"), (t["coral"], "labeled wrong"), (t["rejilla"], "left for a maintainer (needs-triage)")]) + "</div>"
     return marco(t, "Out of every 100 new issues", "What happens when each issue arrives. Same data, same threshold (confidence ≥ 0.60).", s and "".join(s) + leyenda, 900,
-                 "NLBSE'23 test sample, 5,000 issues. laya-triage: 91.7% labeled at 90.2% precision · Jev: 95.1% at 86.6% · Laya base: 57.1% at 89.1%.")
+                 "NLBSE'23 test samples, 5,000 issues each. laya-triage: 94.1% labeled at 91.1% precision · Jev: 95.1% at 86.6% · Laya base: 57.1% at 89.1%.")
 
 def g_tradeoff(t):
-    curva = [(0.0, 86.8), (0.5, 87.1), (1.2, 87.4), (3.1, 88.4), (5.4, 89.4), (7.5, 90.4), (10.4, 91.3), (14.0, 92.1),
-             (17.1, 92.7), (22.4, 93.8), (26.6, 94.6), (33.2, 95.4), (46.0, 97.2)]
-    ancho = W - 176; alto = 560; x0, x1 = 300, ancho - 90; lo_x, hi_x, lo_y, hi_y = 0, 50, 84, 98
+    curva = [(0.0, 88.7), (0.6, 88.9), (1.8, 89.5), (3.6, 90.3), (4.9, 90.8), (7.1, 91.6), (9.3, 92.4), (11.8, 93.3),
+             (14.6, 93.9), (19.1, 94.7), (26.0, 95.7), (45.3, 98.2)]
+    ancho = W - 176; alto = 560; x0, x1 = 300, ancho - 90; lo_x, hi_x, lo_y, hi_y = 0, 50, 84, 100
     ex = lambda v: x0 + (x1 - x0) * (v - lo_x) / (hi_x - lo_x); ey = lambda v: 510 - 480 * (v - lo_y) / (hi_y - lo_y)
     s = [f'<svg width="{ancho}" height="{alto+40}" style="margin-top:36px">']
     for v in range(lo_y, hi_y + 1, 2):
@@ -210,11 +207,11 @@ def g_tradeoff(t):
     s.append(f'<polyline points="{pts}" fill="none" stroke="{t["laya"]}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>')
     for a, b in curva:
         s.append(f'<circle cx="{ex(a)}" cy="{ey(b)}" r="5" fill="{t["laya"]}" stroke="{t["fondo"]}" stroke-width="2"/>')
-    px, py = ex(7.5), ey(90.4)
+    px, py = ex(4.9), ey(90.8)
     s.append(f'<circle cx="{px}" cy="{py}" r="10" fill="{t["laya"]}" stroke="{t["fondo"]}" stroke-width="3"/>')
     s.append(f'<text x="{px+22}" y="{py+36}" fill="{t["tinta"]}" font-size="20" font-weight="700">default threshold</text>')
-    s.append(f'<text x="{px+22}" y="{py+62}" fill="{t["suave"]}" font-size="18" style="font-family:Mono">skips 7.5% · 90.4% right</text>')
-    s.append(f'<text x="{ex(46)-16}" y="{ey(97.2)-18}" fill="{t["suave"]}" font-size="18" text-anchor="end">strict mode: 97% right</text>')
+    s.append(f'<text x="{px+22}" y="{py+62}" fill="{t["suave"]}" font-size="18" style="font-family:Mono">skips 4.9% · 90.8% right</text>')
+    s.append(f'<text x="{ex(45.3)-16}" y="{ey(98.2)-18}" fill="{t["suave"]}" font-size="18" text-anchor="end">strict mode: 98% right</text>')
     for nombre, x, y, dx in [("RoBERTa", 0, 89.1, 1), ("FastText", 0, 85.1, 1), ("Laya base", 42.9, 89.1, 1)]:
         s.append(f'<rect x="{ex(x)-8}" y="{ey(y)-8}" width="16" height="16" rx="3" fill="{t["neutro"]}" stroke="{t["fondo"]}" stroke-width="3"/>')
         if x == 0:
@@ -225,7 +222,7 @@ def g_tradeoff(t):
     s.append("</svg>")
     leyenda = f'<div style="display:flex;gap:32px;margin-top:30px;font-size:21px;color:{t["suave"]}"><span><i style="display:inline-block;width:26px;height:4px;border-radius:2px;background:{t["laya"]};margin-right:10px;vertical-align:5px"></i><b style="color:{t["tinta"]}">laya-triage</b>, one point per confidence threshold</span><span><i style="display:inline-block;width:14px;height:14px;border-radius:3px;background:{t["neutro"]};margin-right:10px;vertical-align:-1px"></i>others, a single operating point</span></div>'
     return marco(t, "It knows when it is unsure", "Precision of the labels it applies. The more careful it is allowed to be, the more accurate it gets.", leyenda + "".join(s), 1060,
-                 "laya-triage curve: NLBSE'23 validation (English model, calibrated, with class priors). Points: test results; RoBERTa / FastText label every issue.")
+                 "laya-triage curve: NLBSE'23 validation (English model, calibrated). Points: test results; RoBERTa / FastText label every issue.")
 
 GRAFICAS = {"exactitud": g_exactitud, "issues-2026": g_2026, "curva": g_curva, "idiomas": g_idiomas, "comparativa": g_comparativa, "cien-issues": g_cien, "confianza": g_tradeoff}
 for nombre, f in GRAFICAS.items():

@@ -26,7 +26,7 @@ laya-triage is a GitHub Action that reads every new issue in your repository, la
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/exactitud-dark.png">
-    <img alt="Accuracy on the NLBSE'23 issue classification test: RoBERTa baseline 89.1%, laya-triage 86.8%, FastText 85.1%, Jev 84.4%, Laya base 75.9%, laya-issue-triage 64.5%" src="docs/benchmarks/exactitud-light.png">
+    <img alt="Accuracy on the NLBSE'23 issue classification test: RoBERTa baseline 89.1%, laya-triage 88.8%, FastText 85.1%, Jev 84.4%, Laya base 75.9%, laya-issue-triage 64.5%" src="docs/benchmarks/exactitud-light.png">
   </picture>
 </p>
 
@@ -95,20 +95,20 @@ jobs:
           mode: warm-cache
 ```
 
-GitHub removes caches that haven't been used for seven days, so it does so twice a week to keep the service running. Additionally, GitHub suspends any scheduled workflows after 60 days of inactivity in the repository; in that case, re-enable the workflow from the Actions tab.
+GitHub removes caches that haven't been used for seven days, so the schedule runs twice a week to keep the cache alive. Additionally, GitHub suspends any scheduled workflows after 60 days of inactivity in the repository; in that case, re-enable the workflow from the Actions tab.
 
-On a typical runner, a triage run takes about 35 seconds with a warm cache.
+On a typical runner, a triage run takes 30 to 40 seconds with a warm cache.
 
 ## How it compares
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/cien-issues-dark.png">
-    <img alt="Out of every 100 new issues: Laya base labels 51 right, 6 wrong and leaves 43; Jev 82 right, 13 wrong, 5 left; laya-triage 83 right, 9 wrong, 8 left for a maintainer" src="docs/benchmarks/cien-issues-light.png">
+    <img alt="Out of every 100 new issues: Laya base labels 51 right, 6 wrong and leaves 43; Jev 82 right, 13 wrong, 5 left; laya-triage 86 right, 8 wrong, 6 left for a maintainer" src="docs/benchmarks/cien-issues-light.png">
   </picture>
 </p>
 
-laya-triage only labels an issue when confident. It labels 91.7% of issues automatically, gets 90.2% of those right, and sends the rest to `needs-triage`, This results in fewer wrong labels than Jev (9 versus 13 per 100 issues)
+laya-triage only labels an issue when confident. It labels 94.1% of issues automatically, gets 91.1% of those right, and sends the rest to `needs-triage`. This results in fewer wrong labels than Jev (8 versus 13 per 100 issues).
 
 <p align="center">
   <picture>
@@ -126,16 +126,16 @@ Hosted triage costs money every month, and someone must keep paying for it. The 
   </picture>
 </p>
 
-Issues in other languages go to a multilingual model. It matches a hosted API across 14 languages. On real non-English issues from 2026, its accuracy improved from 47.1% to 65.7% over the base model.
+Issues in other languages go to a multilingual model. It matches a hosted API across 14 languages. On real non-English issues from 2026, it is well ahead of the base model (61.0% versus 47.1%).
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/confianza-dark.png">
-    <img alt="Precision as the confidence threshold rises: fewer issues are labeled automatically and more are left for a maintainer, while precision grows to about 97%" src="docs/benchmarks/confianza-light.png">
+    <img alt="Precision as the confidence threshold rises: fewer issues are labeled automatically and more are left for a maintainer, while precision grows to about 98%" src="docs/benchmarks/confianza-light.png">
   </picture>
 </p>
 
-The confidence is calibrated. When laya-triage says 90%, it is right about 90% of the time. A stricter threshold labels fewer issues with higher precision, reaching about 97% on half of them.
+The confidence is calibrated. When laya-triage says 90%, it is right about 90% of the time. A stricter threshold labels fewer issues with higher precision, reaching about 98% on half of them.
 
 ## Inputs
 
@@ -199,7 +199,7 @@ With a GitHub App token, the workflow only needs `contents: read`.
 1. The action restores a Python environment and the two models from the GitHub cache.
 2. It removes your repository's issue template boilerplate, so only what the author actually wrote is classified.
 3. The Laya router sends English issues to [laya-triage-en](https://huggingface.co/elnachto/laya-triage-en) and other languages to [laya-triage-multilingual](https://huggingface.co/elnachto/laya-triage-multilingual). Both are downloaded at a fixed revision, so `@v1` always uses the exact models that were measured.
-4. The model answers in a single forward pass on the runner's CPU. The answer is adjusted with class priors, because real repositories get far more bugs and feature requests than questions.
+4. The model answers in a single forward pass on the runner's CPU. The English model was trained on the real mix of GitHub issues. The multilingual model was trained on balanced classes, so its answer is adjusted with class priors, because real repositories get far more bugs and feature requests than questions.
 5. If the confidence is at least 0.60, the label is applied. Otherwise the issue gets `needs-triage`.
 
 ## Security
@@ -211,29 +211,30 @@ With a GitHub App token, the workflow only needs `contents: read`.
 
 ## Limitations
 
-- **question** and **docs** are the hardest classes (F1 around 0.6). Many questions read like bug reports, and the class priors favor bug and feature. Repositories that receive mostly questions will see some of them labeled as bugs.
-- The best published result on this benchmark is still the NLBSE'23 RoBERTa baseline (89.1%), trained on about 1.27M issues. laya-triage is 2.3 points behind while running on a free CPU runner.
-- The multilingual model was trained on machine-translated issues.It is measured on 14 languages; other languages work through the base model but aren’t evaluated.
+- **question** and **docs** are the hardest classes (F1 around 0.6 to 0.7). Many questions read like bug reports, and questions are rare in real repositories, so the model is cautious about predicting them. Repositories that receive mostly questions will see some of them labeled as bugs.
+- The best published result on this benchmark is the NLBSE'23 RoBERTa baseline (89.1%), trained on about 1.27M issues. laya-triage is 0.3 points behind, within the margin of error, while running on a free CPU runner.
+- Issues written today are harder than the NLBSE'23 test set. On issues from 2026, laya-triage and Jev are level (see below).
+- The multilingual model was trained on machine-translated issues. It is measured on 14 languages; other languages work through the base model but aren’t evaluated.
 - The spam check is experimental: on our pull request data it catches only a small share of spam, which is why it is off by default.
 - Bug reports with less than 30 characters of real content get `needs-more-info`. Very short but complete reports may also get this label.
 
 ## How it was measured
 
-All numbers come from a random 5,000-issue sample of the official [NLBSE'23](https://github.com/nlbse2023/issue-report-classification) test set. It was used once, after every decision was frozen on a separate validation split. Jev and laya-issue-triage were run by us on the same sample with the same question. The ±0.9 point margin is the 95% interval for 5,000 issues.
+The headline number comes from a fresh random sample of 5,000 issues from the official [NLBSE'23](https://github.com/nlbse2023/issue-report-classification) test set. It was used once, after every decision was frozen on a separate validation split. Jev, Laya base and laya-issue-triage were run by us, with the same question, on an earlier 5,000-issue sample of the same test set. The previous laya-triage model scored 86.8% there and 87.2% on the fresh sample, so the two samples agree. The ±0.9 point margin is the 95% interval for 5,000 issues.
 
-To check that the models are not tuned to an old dataset, we also collected 2,000 closed issues opened in 2026 across 1,145 repositories:
+To check that the models are not tuned to an old dataset, we also collected 2,000 closed issues opened in 2026 across 1,145 repositories, 500 per class. Here laya-triage, exactly as the action ships it, and Jev are level (macro F1 0.662 and 0.660). The set is balanced on purpose, so it weighs questions four times more than a typical repository does:
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/issues-2026-dark.png">
-    <img alt="Macro F1 on 2,000 real issues from 2026: laya-triage 0.725, Jev 0.660, Laya base 0.523" src="docs/benchmarks/issues-2026-light.png">
+    <img alt="Macro F1 on 2,000 real issues from 2026: laya-triage 0.662, Jev 0.660, Laya base 0.523" src="docs/benchmarks/issues-2026-light.png">
   </picture>
 </p>
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/curva-dark.png">
-    <img alt="Validation accuracy while training the English model" src="docs/benchmarks/curva-light.png">
+    <img alt="Validation accuracy of the English model by number of training issues: 40k 85.6%, 150k 86.8%, 500k 88.1%, 1M 88.4%, against the RoBERTa baseline at 89.1%" src="docs/benchmarks/curva-light.png">
   </picture>
 </p>
 
