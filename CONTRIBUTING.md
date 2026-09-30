@@ -4,7 +4,7 @@ Thanks for your help! laya-triage is a GitHub Action that labels new issues with
 
 ## Hacktoberfest
 
-This repository takes part in Hacktoberfest. Issues labeled `good first issue` or `hacktoberfest` are good places to start. Comment on the issue before you begin to avoid duplicate work. Pull requests that are merged or labeled `hacktoberfest-accepted` count toward Hacktoberfest. Low-effort pull requests (whitespace, renaming, adding your name) will be closed.
+This project takes part in the spirit of Hacktoberfest 2026: learning and building with open-source AI and open-weight models. Issues labeled `good first issue` or `hacktoberfest` are a good place to start. Comment on the issue before you begin so two people don't work on the same thing. Low-effort pull requests (whitespace, renaming, adding your name) will be closed.
 
 ## Set up
 
