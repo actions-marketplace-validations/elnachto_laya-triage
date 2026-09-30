@@ -1,5 +1,5 @@
 name: "Laya Triage"
-description: "Free, local AI triage for issues and pull requests using the open Laya decision model"
+description: "Free, local AI triage for GitHub issues with a fine-tuned Laya model. No API key, no external service"
 branding:
   icon: "tag"
   color: "purple"

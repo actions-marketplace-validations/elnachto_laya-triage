@@ -51,10 +51,14 @@ def calcular_metricas(reales, predichas):
     return aciertos / len(reales), f1_macro, por_clase
 
 
-def leer_priores(carpeta_modelo):
+def leer_config_triage(carpeta_modelo):
     ruta = os.path.join(carpeta_modelo, "rl_agent_config.json")
     with open(ruta, encoding="utf-8") as archivo:
-        return json.load(archivo).get("laya_triage", {}).get("priores")
+        return json.load(archivo).get("laya_triage", {})
+
+
+def leer_priores(carpeta_modelo):
+    return leer_config_triage(carpeta_modelo).get("priores")
 
 
 def aplicar_priores(respuesta, priores):
@@ -87,10 +91,14 @@ def main():
         raise SystemExit("--priores necesita --modelo-ingles o --modelo-multilingue")
     priores = {ruta: leer_priores(carpeta) for ruta, carpeta in rutas_modelo.items()} if args.priores else {}
     priores = {ruta: valores for ruta, valores in priores.items() if valores}
+    bases = {ruta: leer_config_triage(carpeta).get("mezcla_base") for ruta, carpeta in rutas_modelo.items()}
+    for ruta, base in bases.items():
+        if base:
+            print(f"Ruta {ruta}: mezcla base {base}")
     if args.priores_objetivo:
         objetivo = leer_objetivo(args.priores_objetivo)
         priores = {
-            ruta: (objetivo if ruta in priores else {c: objetivo[c] / MEZCLA_NATURAL[c] for c in objetivo})
+            ruta: (objetivo if ruta in priores else {c: objetivo[c] / (bases.get(ruta) or MEZCLA_NATURAL)[c] for c in objetivo})
             for ruta in rutas_modelo
         }
         print(f"Mezcla objetivo: {objetivo}")
@@ -134,7 +142,7 @@ def main():
         respuesta = r["answers"]["tipo"]
         ruta = r["routing"]["model"]
         if por_repo and por_repo[i]:
-            eleccion, confianza = aplicar_priores(respuesta, pesos_para_ruta(por_repo[i], priores.get(ruta)))
+            eleccion, confianza = aplicar_priores(respuesta, pesos_para_ruta(por_repo[i], priores.get(ruta), bases.get(ruta)))
         elif ruta in priores:
             eleccion, confianza = aplicar_priores(respuesta, priores[ruta])
         else:
@@ -161,6 +169,7 @@ def main():
         "variante": args.variante,
         "por_defecto": args.por_defecto,
         "priores": priores,
+        "mezcla_base": {ruta: base for ruta, base in bases.items() if base},
         "dispositivo": args.dispositivo,
         "issues": len(reales),
         "rutas": dict(rutas),

@@ -23,9 +23,17 @@ def rutas_modelos():
     return {nombre: ruta_modelo(repo, revision) for nombre, (repo, revision) in MODELOS.items()}
 
 
-def leer_priores(carpeta):
+def leer_config_triage(carpeta):
     with open(os.path.join(carpeta, "rl_agent_config.json"), encoding="utf-8") as archivo:
-        return json.load(archivo).get("laya_triage", {}).get("priores")
+        return json.load(archivo).get("laya_triage", {})
+
+
+def leer_priores(carpeta):
+    return leer_config_triage(carpeta).get("priores")
+
+
+def leer_mezcla_base(carpeta):
+    return leer_config_triage(carpeta).get("mezcla_base")
 
 
 if __name__ == "__main__":

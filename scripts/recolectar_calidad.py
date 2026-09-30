@@ -131,6 +131,13 @@ def consultar(consulta, variables, token, esperas=ESPERAS):
     return None
 
 
+def tramos_de_estrellas(args):
+    if not args.estrellas_min:
+        return TRAMOS_ESTRELLAS
+    return [f"{inicio}..{min(inicio + args.paso_estrellas - 1, args.estrellas_max)}"
+            for inicio in range(args.estrellas_min, args.estrellas_max + 1, args.paso_estrellas)]
+
+
 def buscar_repos(args, token):
     if os.path.exists(args.repos):
         with open(args.repos, encoding="utf-8") as archivo:
@@ -138,7 +145,7 @@ def buscar_repos(args, token):
         print(f"{len(repos)} repos leídos de {args.repos}")
         return repos
     repos = {}
-    for tramo in TRAMOS_ESTRELLAS:
+    for tramo in tramos_de_estrellas(args):
         consulta = f"stars:{tramo} archived:false fork:false pushed:>={args.activo_desde} sort:stars"
         print(f"Buscando repos {consulta}")
         cursor = None
@@ -309,6 +316,9 @@ def main():
     parser.add_argument("--repos", default="datos/calidad/repos.json")
     parser.add_argument("--excluir", nargs="*", default=["datos/github_reciente.csv"])
     parser.add_argument("--salida", default="")
+    parser.add_argument("--estrellas-min", type=int, default=0)
+    parser.add_argument("--estrellas-max", type=int, default=999)
+    parser.add_argument("--paso-estrellas", type=int, default=10)
     args = parser.parse_args()
 
     token = os.environ.get("GITHUB_TOKEN")

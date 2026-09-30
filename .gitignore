@@ -6,4 +6,4 @@ bench/muestra_test.csv
 modelos/
 logs/
 bench/resultados/*_respuestas.jsonl
-bench/resultados/jev_prueba.json
+bench/resultados/jev_prueba.jsonevento.json

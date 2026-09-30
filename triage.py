@@ -8,12 +8,12 @@ import urllib.request
 
 from laya import Router
 
-from modelos import leer_priores, rutas_modelos
+from modelos import leer_mezcla_base, leer_priores, rutas_modelos
 from plantillas import cargar_plantillas, quitar_plantilla
 from preguntas import PREGUNTAS_ISSUE, PREGUNTAS_PR
 from repo import (
-    contar_issues, etiquetas_del_repo, leer_pares, mapear_etiquetas, mezcla_desde_conteos, mezcla_manual,
-    pesos_para_ruta,
+    NORMALIZADA_A_TIPO, contar_issues, etiquetas_del_repo, leer_pares, mapear_etiquetas, mezcla_desde_conteos,
+    mezcla_manual, normalizar, pesos_para_ruta,
 )
 
 UMBRAL_TIPO = 0.60
@@ -124,6 +124,16 @@ def configuracion_del_repo(repo, token):
     return nombres, mezcla
 
 
+def tipo_existente(item, nombres):
+    propias = {nombre: tipo for tipo, nombre in nombres.items()}
+    for etiqueta in item.get("labels") or []:
+        nombre = etiqueta.get("name", "") if isinstance(etiqueta, dict) else str(etiqueta)
+        tipo = propias.get(nombre) or NORMALIZADA_A_TIPO.get(normalizar(nombre))
+        if tipo:
+            return tipo, nombre
+    return None, None
+
+
 def spam_activado():
     return os.environ.get("LAYA_SPAM_CHECK", "false").strip().lower() == "true"
 
@@ -219,7 +229,7 @@ def main():
 
     rutas = rutas_modelos()
     priores = {nombre: leer_priores(carpeta) for nombre, carpeta in rutas.items()}
-    router = Router(models=rutas, default="multilingual")
+    bases = {nombre: leer_mezcla_base(carpeta) for nombre, carpeta in rutas.items()}
 
     if "pull_request" in evento:
         item = evento["pull_request"]
@@ -227,6 +237,7 @@ def main():
         lineas_plantilla = 0
         mezcla = None
         estado = {"title": item["title"], "body": cuerpo_util}
+        router = Router(models=rutas, default="multilingual")
         resultado = router.predict(estado, PREGUNTAS_PR)
         etiquetas, comentario = decidir_pr(item, resultado["answers"])
         tipo_item = "pull_request"
@@ -235,10 +246,29 @@ def main():
         cuerpo_util, lineas_plantilla = limpiar_issue(evento, item)
         repo = evento.get("repository", {}).get("full_name") or os.environ.get("GITHUB_REPOSITORY")
         nombres, mezcla = configuracion_del_repo(repo, os.environ.get("GITHUB_TOKEN"))
+        tipo_previo, etiqueta_previa = tipo_existente(item, nombres)
+        if tipo_previo:
+            etiquetas, comentario = [], None
+            if tipo_previo == "bug" and len(cuerpo_util) < MIN_CARACTERES_UTILES:
+                etiquetas, comentario = ["needs-more-info"], COMENTARIO_INFO
+            print(json.dumps({
+                "tipo": "issue",
+                "numero": item["number"],
+                "titulo": item["title"],
+                "ya_etiquetado": etiqueta_previa,
+                "caracteres_utiles": len(cuerpo_util),
+                "etiquetas": etiquetas,
+                "comentario": comentario,
+            }, indent=2, ensure_ascii=False))
+            print(f"El issue ya tiene la etiqueta de tipo '{etiqueta_previa}': no lo vuelvo a clasificar")
+            if etiquetas and os.environ.get("LAYA_DRY_RUN", "true").strip().lower() == "false":
+                aplicar_cambios(os.environ["GITHUB_REPOSITORY"], item["number"], etiquetas, comentario)
+            return
         estado = {"title": item["title"], "body": cuerpo_util}
+        router = Router(models=rutas, default="multilingual")
         resultado = router.predict(estado, PREGUNTAS_ISSUE)
         modelo = resultado["routing"]["model"]
-        pesos = pesos_para_ruta(mezcla, priores.get(modelo))
+        pesos = pesos_para_ruta(mezcla, priores.get(modelo), bases.get(modelo))
         resultado["answers"]["tipo"] = aplicar_priores(resultado["answers"]["tipo"], pesos)
         etiquetas, comentario = decidir_issue(resultado["answers"], cuerpo_util, nombres)
         tipo_item = "issue"

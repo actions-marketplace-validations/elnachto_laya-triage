@@ -7,7 +7,7 @@ COLUMNAS = ["id", "labels", "title", "body"]
 
 
 def es_validacion(repo, porcentaje):
-    return int(hashlib.sha1(str(repo).lower().encode("utf-8")).hexdigest(), 16) % 100 < porcentaje
+    return int(hashlib.sha1(f"validacion:{str(repo).lower()}".encode("utf-8")).hexdigest(), 16) % 100 < porcentaje
 
 
 def main():
@@ -34,7 +34,7 @@ def main():
 
     mezcla = pd.concat([recientes[COLUMNAS], repaso[COLUMNAS]]).sample(frac=1, random_state=args.semilla)
     mezcla.to_csv(args.salida, index=False)
-    validacion[COLUMNAS].to_csv(args.salida_validacion, index=False)
+    validacion[COLUMNAS + ["repo"]].to_csv(args.salida_validacion, index=False)
     print(f"{len(mezcla)} issues guardados en {args.salida}")
     print((mezcla["labels"].value_counts(normalize=True) * 100).round(1).to_string())
     print(f"{len(validacion)} issues de validación guardados en {args.salida_validacion}")

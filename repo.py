@@ -104,9 +104,10 @@ def mezcla_manual(texto):
     return {tipo: valor / total for tipo, valor in valores.items()}
 
 
-def pesos_para_ruta(mezcla, priores_modelo):
+def pesos_para_ruta(mezcla, priores_modelo, mezcla_base=None):
     if not mezcla:
         return priores_modelo
     if priores_modelo:
         return mezcla
-    return {tipo: mezcla[tipo] / MEZCLA_NATURAL[tipo] for tipo in MEZCLA_NATURAL}
+    base = mezcla_base or MEZCLA_NATURAL
+    return {tipo: mezcla[tipo] / base[tipo] for tipo in MEZCLA_NATURAL}
