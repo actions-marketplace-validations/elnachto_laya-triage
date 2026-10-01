@@ -1,0 +1,17 @@
+name: Triage
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: elnachto/laya-triage@v1
+        with:
+          dry-run: "false"

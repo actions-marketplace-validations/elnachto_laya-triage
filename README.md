@@ -71,6 +71,12 @@ The process starts in **dry-run mode**, showing its decisions in the workflow lo
           dry-run: "false"
 ```
 
+Ready-to-copy workflows live in [`docs/examples/`](docs/examples/):
+
+- [`triage.yml`](docs/examples/triage.yml) — basic setup
+- [`triage-github-app.yml`](docs/examples/triage-github-app.yml) — GitHub App token so labels come from a bot with its own name
+- [`triage-custom-labels.yml`](docs/examples/triage-custom-labels.yml) — custom label names
+
 ## Recommended: warm the model cache
 
 The two models weigh about 1.5 GB. GitHub only lets trusted events like `schedule` and `workflow_dispatch` write to the cache. Issue runs can read it but not save it. Add this second workflow and run it once from the Actions tab:
@@ -264,6 +270,8 @@ python -m venv .venv
 ```
 
 The first run downloads the two models (about 1.5 GB). Local runs never change anything on GitHub unless you set `LAYA_DRY_RUN=false` and a `GITHUB_TOKEN`.
+
+If laya-triage saves you time, a ⭐ helps other maintainers find it.
 
 ## Credits
 
