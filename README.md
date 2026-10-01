@@ -41,6 +41,13 @@ laya-triage is a GitHub Action that reads every new issue in your repository, la
 
 laya-triage never closes issues or pull requests. Maintainers keep full control over decisions.
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/demo-dark.svg">
+    <img alt="A new issue is opened, laya-triage reads it and adds the bug label with 93% confidence" src="docs/demo-light.svg">
+  </picture>
+</p>
+
 ## Quick start
 
 Create `.github/workflows/triage.yml` in your repository:
