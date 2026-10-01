@@ -24,8 +24,8 @@ SINONIMOS = {
     ],
     "question": [
         "question", "type question", "kind question", "support", "type support", "t question",
-        "help", "usage", "discussion", "q&a", "how to", "needs help", "kind support",
-        "t support", "type help", "c question",
+        "usage", "q&a", "how to", "kind support",
+        "t support", "c question",
     ],
     "docs": [
         "documentation", "docs", "doc", "type docs", "type documentation",
