@@ -1,0 +1,101 @@
+{
+  "modelo": "valc_conjunto",
+  "modelo_ingles": "D:\\laya\\modelos\\laya-triage-en-conjunto\\mejor",
+  "modelo_multilingue": "D:\\laya\\modelos\\laya-triage-ml-reciente\\mejor",
+  "variante": "sin_other",
+  "por_defecto": "multilingual",
+  "priores": {},
+  "mezcla_base": {
+    "multilingual": {
+      "bug": 0.532,
+      "feature": 0.308,
+      "question": 0.11,
+      "docs": 0.05
+    }
+  },
+  "dispositivo": "cuda",
+  "issues": 5869,
+  "rutas": {
+    "english": 5425,
+    "multilingual": 444
+  },
+  "por_ruta": {
+    "english": {
+      "issues": 5425,
+      "exactitud": 0.774,
+      "f1_macro": 0.74
+    },
+    "multilingual": {
+      "issues": 444,
+      "exactitud": 0.831,
+      "f1_macro": 0.773
+    }
+  },
+  "exactitud": 0.778,
+  "f1_macro": 0.747,
+  "linea_base_mayoritaria": 0.458,
+  "umbral": 0.6,
+  "cobertura_con_umbral": 0.839,
+  "exactitud_con_umbral": 0.824,
+  "ms_por_issue": 14.4,
+  "por_clase": {
+    "bug": {
+      "precision": 0.772,
+      "recall": 0.888,
+      "f1": 0.826,
+      "soporte": 2687
+    },
+    "feature": {
+      "precision": 0.827,
+      "recall": 0.775,
+      "f1": 0.8,
+      "soporte": 1766
+    },
+    "question": {
+      "precision": 0.638,
+      "recall": 0.511,
+      "f1": 0.567,
+      "soporte": 967
+    },
+    "docs": {
+      "precision": 0.906,
+      "recall": 0.708,
+      "f1": 0.795,
+      "soporte": 449
+    }
+  },
+  "confusion": [
+    [
+      "question->bug",
+      341
+    ],
+    [
+      "feature->bug",
+      294
+    ],
+    [
+      "bug->question",
+      153
+    ],
+    [
+      "bug->feature",
+      137
+    ],
+    [
+      "question->feature",
+      123
+    ],
+    [
+      "feature->question",
+      91
+    ],
+    [
+      "docs->bug",
+      68
+    ],
+    [
+      "docs->question",
+      36
+    ]
+  ]
+}
