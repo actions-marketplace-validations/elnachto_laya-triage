@@ -1,0 +1,120 @@
+{
+  "modelo": "reciente_conjunto_25",
+  "modelo_ingles": "D:\\laya\\modelos\\laya-triage-en-conjunto\\mejor",
+  "modelo_multilingue": "D:\\laya\\modelos\\laya-triage-ml-reciente\\mejor",
+  "variante": "sin_other",
+  "por_defecto": "multilingual",
+  "priores": {
+    "english": {
+      "bug": 0.47619047619047616,
+      "feature": 0.7102272727272728,
+      "question": 3.2051282051282053,
+      "docs": 5.434782608695652
+    },
+    "multilingual": {
+      "bug": 0.4699248120300752,
+      "feature": 0.8116883116883117,
+      "question": 2.272727272727273,
+      "docs": 5.0
+    }
+  },
+  "mezcla_base": {
+    "english": {
+      "bug": 0.525,
+      "feature": 0.352,
+      "question": 0.078,
+      "docs": 0.046
+    },
+    "multilingual": {
+      "bug": 0.532,
+      "feature": 0.308,
+      "question": 0.11,
+      "docs": 0.05
+    }
+  },
+  "dispositivo": "cuda",
+  "issues": 2000,
+  "rutas": {
+    "english": 1633,
+    "multilingual": 367
+  },
+  "por_ruta": {
+    "english": {
+      "issues": 1633,
+      "exactitud": 0.782,
+      "f1_macro": 0.772
+    },
+    "multilingual": {
+      "issues": 367,
+      "exactitud": 0.711,
+      "f1_macro": 0.683
+    }
+  },
+  "exactitud": 0.769,
+  "f1_macro": 0.758,
+  "linea_base_mayoritaria": 0.25,
+  "umbral": 0.6,
+  "cobertura_con_umbral": 0.617,
+  "exactitud_con_umbral": 0.89,
+  "ms_por_issue": 18.7,
+  "por_clase": {
+    "bug": {
+      "precision": 0.761,
+      "recall": 0.826,
+      "f1": 0.792,
+      "soporte": 500
+    },
+    "feature": {
+      "precision": 0.752,
+      "recall": 0.868,
+      "f1": 0.806,
+      "soporte": 500
+    },
+    "question": {
+      "precision": 0.951,
+      "recall": 0.466,
+      "f1": 0.626,
+      "soporte": 500
+    },
+    "docs": {
+      "precision": 0.721,
+      "recall": 0.916,
+      "f1": 0.807,
+      "soporte": 500
+    }
+  },
+  "confusion": [
+    [
+      "question->docs",
+      113
+    ],
+    [
+      "question->bug",
+      91
+    ],
+    [
+      "question->feature",
+      63
+    ],
+    [
+      "bug->feature",
+      49
+    ],
+    [
+      "feature->docs",
+      35
+    ],
+    [
+      "docs->feature",
+      31
+    ],
+    [
+      "feature->bug",
+      29
+    ],
+    [
+      "bug->docs",
+      29
+    ]
+  ]
+}

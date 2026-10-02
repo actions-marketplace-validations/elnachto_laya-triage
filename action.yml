@@ -56,13 +56,13 @@ runs:
       uses: actions/cache@v6
       with:
         path: ~/.cache/huggingface
-        key: laya-triage-models-2b87cb4-194786c
+        key: laya-triage-models-9596364-6c2dad2
 
     - if: inputs.mode != 'warm-cache'
       uses: actions/cache/restore@v6
       with:
         path: ~/.cache/huggingface
-        key: laya-triage-models-2b87cb4-194786c
+        key: laya-triage-models-9596364-6c2dad2
 
     - name: Install dependencies
       if: steps.venv-save.outputs.cache-hit != 'true' && steps.venv-restore.outputs.cache-hit != 'true'

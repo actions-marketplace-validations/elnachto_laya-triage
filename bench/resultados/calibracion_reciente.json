@@ -1,0 +1,204 @@
+{
+  "modelo": "D:\\laya\\modelos\\laya-triage-en-1m-reciente\\mejor",
+  "temperatura": 1.0197,
+  "issues_ajuste": 1208,
+  "issues_prueba": 1208,
+  "sin_calibrar": {
+    "exactitud": 0.7144,
+    "ece": 0.0396,
+    "curva": [
+      {
+        "umbral": 0.4,
+        "cobertura": 0.993,
+        "precision": 0.718
+      },
+      {
+        "umbral": 0.45,
+        "cobertura": 0.981,
+        "precision": 0.723
+      },
+      {
+        "umbral": 0.5,
+        "cobertura": 0.94,
+        "precision": 0.731
+      },
+      {
+        "umbral": 0.55,
+        "cobertura": 0.882,
+        "precision": 0.747
+      },
+      {
+        "umbral": 0.6,
+        "cobertura": 0.832,
+        "precision": 0.762
+      },
+      {
+        "umbral": 0.65,
+        "cobertura": 0.773,
+        "precision": 0.777
+      },
+      {
+        "umbral": 0.7,
+        "cobertura": 0.709,
+        "precision": 0.797
+      },
+      {
+        "umbral": 0.75,
+        "cobertura": 0.625,
+        "precision": 0.813
+      },
+      {
+        "umbral": 0.8,
+        "cobertura": 0.462,
+        "precision": 0.835
+      },
+      {
+        "umbral": 0.85,
+        "cobertura": 0.224,
+        "precision": 0.908
+      },
+      {
+        "umbral": 0.9,
+        "cobertura": 0.001,
+        "precision": 1.0
+      },
+      {
+        "umbral": 0.95,
+        "cobertura": 0.0,
+        "precision": null
+      }
+    ]
+  },
+  "calibrado": {
+    "exactitud": 0.7144,
+    "ece": 0.0344,
+    "curva": [
+      {
+        "umbral": 0.4,
+        "cobertura": 0.993,
+        "precision": 0.718
+      },
+      {
+        "umbral": 0.45,
+        "cobertura": 0.979,
+        "precision": 0.723
+      },
+      {
+        "umbral": 0.5,
+        "cobertura": 0.935,
+        "precision": 0.731
+      },
+      {
+        "umbral": 0.55,
+        "cobertura": 0.88,
+        "precision": 0.747
+      },
+      {
+        "umbral": 0.6,
+        "cobertura": 0.823,
+        "precision": 0.764
+      },
+      {
+        "umbral": 0.65,
+        "cobertura": 0.764,
+        "precision": 0.778
+      },
+      {
+        "umbral": 0.7,
+        "cobertura": 0.702,
+        "precision": 0.798
+      },
+      {
+        "umbral": 0.75,
+        "cobertura": 0.603,
+        "precision": 0.816
+      },
+      {
+        "umbral": 0.8,
+        "cobertura": 0.425,
+        "precision": 0.844
+      },
+      {
+        "umbral": 0.85,
+        "cobertura": 0.2,
+        "precision": 0.901
+      },
+      {
+        "umbral": 0.9,
+        "cobertura": 0.0,
+        "precision": null
+      },
+      {
+        "umbral": 0.95,
+        "cobertura": 0.0,
+        "precision": null
+      }
+    ]
+  },
+  "calibrado_con_priores": {
+    "exactitud": 0.6987,
+    "ece": 0.1277,
+    "curva": [
+      {
+        "umbral": 0.4,
+        "cobertura": 0.98,
+        "precision": 0.704
+      },
+      {
+        "umbral": 0.45,
+        "cobertura": 0.956,
+        "precision": 0.708
+      },
+      {
+        "umbral": 0.5,
+        "cobertura": 0.932,
+        "precision": 0.721
+      },
+      {
+        "umbral": 0.55,
+        "cobertura": 0.899,
+        "precision": 0.732
+      },
+      {
+        "umbral": 0.6,
+        "cobertura": 0.878,
+        "precision": 0.738
+      },
+      {
+        "umbral": 0.65,
+        "cobertura": 0.843,
+        "precision": 0.747
+      },
+      {
+        "umbral": 0.7,
+        "cobertura": 0.81,
+        "precision": 0.756
+      },
+      {
+        "umbral": 0.75,
+        "cobertura": 0.782,
+        "precision": 0.763
+      },
+      {
+        "umbral": 0.8,
+        "cobertura": 0.731,
+        "precision": 0.773
+      },
+      {
+        "umbral": 0.85,
+        "cobertura": 0.637,
+        "precision": 0.791
+      },
+      {
+        "umbral": 0.9,
+        "cobertura": 0.435,
+        "precision": 0.806
+      },
+      {
+        "umbral": 0.95,
+        "cobertura": 0.099,
+        "precision": 0.874
+      }
+    ]
+  }
+}

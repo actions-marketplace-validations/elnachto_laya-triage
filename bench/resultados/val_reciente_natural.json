@@ -1,0 +1,114 @@
+{
+  "modelo": "val_reciente_natural",
+  "modelo_ingles": "D:\\laya\\modelos\\laya-triage-en-1m-reciente\\mejor",
+  "modelo_multilingue": "modelos\\laya-triage-ml\\mejor",
+  "variante": "sin_other",
+  "por_defecto": "multilingual",
+  "priores": {
+    "english": {
+      "bug": 0.9887218045112782,
+      "feature": 1.2012987012987013,
+      "question": 0.5454545454545454,
+      "docs": 0.8799999999999999
+    },
+    "multilingual": {
+      "bug": 0.526,
+      "feature": 0.37,
+      "question": 0.06,
+      "docs": 0.044
+    }
+  },
+  "mezcla_base": {
+    "english": {
+      "bug": 0.532,
+      "feature": 0.308,
+      "question": 0.11,
+      "docs": 0.05
+    }
+  },
+  "dispositivo": "cuda",
+  "issues": 5000,
+  "rutas": {
+    "english": 4778,
+    "multilingual": 222
+  },
+  "por_ruta": {
+    "english": {
+      "issues": 4778,
+      "exactitud": 0.876,
+      "f1_macro": 0.758
+    },
+    "multilingual": {
+      "issues": 222,
+      "exactitud": 0.829,
+      "f1_macro": 0.592
+    }
+  },
+  "exactitud": 0.874,
+  "f1_macro": 0.755,
+  "linea_base_mayoritaria": 0.526,
+  "umbral": 0.6,
+  "cobertura_con_umbral": 0.896,
+  "exactitud_con_umbral": 0.914,
+  "ms_por_issue": 15.2,
+  "por_clase": {
+    "bug": {
+      "precision": 0.907,
+      "recall": 0.922,
+      "f1": 0.914,
+      "soporte": 2631
+    },
+    "feature": {
+      "precision": 0.868,
+      "recall": 0.896,
+      "f1": 0.882,
+      "soporte": 1855
+    },
+    "question": {
+      "precision": 0.632,
+      "recall": 0.46,
+      "f1": 0.532,
+      "soporte": 287
+    },
+    "docs": {
+      "precision": 0.742,
+      "recall": 0.648,
+      "f1": 0.692,
+      "soporte": 227
+    }
+  },
+  "confusion": [
+    [
+      "feature->bug",
+      143
+    ],
+    [
+      "bug->feature",
+      134
+    ],
+    [
+      "question->bug",
+      84
+    ],
+    [
+      "question->feature",
+      67
+    ],
+    [
+      "docs->feature",
+      53
+    ],
+    [
+      "bug->question",
+      49
+    ],
+    [
+      "feature->docs",
+      25
+    ],
+    [
+      "feature->question",
+      24
+    ]
+  ]
+}
