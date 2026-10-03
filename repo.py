@@ -13,8 +13,7 @@ DIAS_HISTORIAL = 365
 SINONIMOS = {
     "bug": [
         "bug", "type bug", "kind bug", "t bug", "bug report", "confirmed bug",
-        "defect", "regression", "type defect", "kind regression", "c bug",
-        "crash", "bugfix",
+        "defect", "type defect", "c bug",
     ],
     "feature": [
         "enhancement", "feature", "feature request", "new feature", "type feature",
