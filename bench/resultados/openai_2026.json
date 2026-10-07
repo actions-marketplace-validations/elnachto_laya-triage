@@ -1,0 +1,143 @@
+{
+  "modelo": "openai_2026",
+  "modelo_openai": "gpt-6-luna",
+  "muestra": "datos/github_reciente.csv",
+  "variante": "sin_other",
+  "issues": 2000,
+  "issues_sin_respuesta": 0,
+  "rechazos": 0,
+  "exactitud": 0.632,
+  "f1_macro": 0.602,
+  "umbral": 0.6,
+  "cobertura_con_umbral": 0.969,
+  "exactitud_con_umbral": 0.641,
+  "curva_prob_maxima": [
+    {
+      "umbral": 0.4,
+      "cobertura": 0.999,
+      "precision": 0.632
+    },
+    {
+      "umbral": 0.45,
+      "cobertura": 0.998,
+      "precision": 0.633
+    },
+    {
+      "umbral": 0.5,
+      "cobertura": 0.995,
+      "precision": 0.634
+    },
+    {
+      "umbral": 0.55,
+      "cobertura": 0.985,
+      "precision": 0.636
+    },
+    {
+      "umbral": 0.6,
+      "cobertura": 0.969,
+      "precision": 0.641
+    },
+    {
+      "umbral": 0.65,
+      "cobertura": 0.944,
+      "precision": 0.645
+    },
+    {
+      "umbral": 0.7,
+      "cobertura": 0.923,
+      "precision": 0.652
+    },
+    {
+      "umbral": 0.75,
+      "cobertura": 0.899,
+      "precision": 0.656
+    },
+    {
+      "umbral": 0.8,
+      "cobertura": 0.875,
+      "precision": 0.66
+    },
+    {
+      "umbral": 0.85,
+      "cobertura": 0.853,
+      "precision": 0.666
+    },
+    {
+      "umbral": 0.9,
+      "cobertura": 0.808,
+      "precision": 0.677
+    },
+    {
+      "umbral": 0.95,
+      "cobertura": 0.748,
+      "precision": 0.697
+    }
+  ],
+  "latencia_ms": {
+    "mediana": 246.4,
+    "p95": 308.6
+  },
+  "tokens_entrada": 860835,
+  "tokens_reales": true,
+  "costo_usd": 0.0861,
+  "por_clase": {
+    "bug": {
+      "precision": 0.718,
+      "recall": 0.866,
+      "f1": 0.785,
+      "soporte": 500
+    },
+    "feature": {
+      "precision": 0.472,
+      "recall": 0.962,
+      "f1": 0.634,
+      "soporte": 500
+    },
+    "question": {
+      "precision": 0.846,
+      "recall": 0.22,
+      "f1": 0.349,
+      "soporte": 500
+    },
+    "docs": {
+      "precision": 0.964,
+      "recall": 0.48,
+      "f1": 0.641,
+      "soporte": 500
+    }
+  },
+  "confusion": [
+    [
+      "question->feature",
+      257
+    ],
+    [
+      "docs->feature",
+      226
+    ],
+    [
+      "question->bug",
+      126
+    ],
+    [
+      "bug->feature",
+      54
+    ],
+    [
+      "docs->bug",
+      28
+    ],
+    [
+      "feature->bug",
+      16
+    ],
+    [
+      "bug->question",
+      12
+    ],
+    [
+      "question->docs",
+      7
+    ]
+  ]
+}

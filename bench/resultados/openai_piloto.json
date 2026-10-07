@@ -1,0 +1,82 @@
+{
+  "modelo": "openai_piloto",
+  "rival": "OpenAI Decisions API (gpt-6-luna)",
+  "muestra": "datos/calidad/validacion_conjunta.csv",
+  "variante": "sin_other",
+  "issues": 200,
+  "rechazos": 1,
+  "exactitud": 0.72,
+  "f1_macro": 0.676,
+  "linea_base_mayoritaria": 0.44,
+  "umbral": 0.6,
+  "cobertura_con_umbral": 0.96,
+  "exactitud_con_umbral": 0.74,
+  "por_cien": {
+    "bien": 71,
+    "mal": 25,
+    "sin_etiqueta": 4
+  },
+  "costo_usd_estimado": 0.008,
+  "ms_mediana": 267.0,
+  "ms_p95": 1101.9,
+  "por_clase": {
+    "bug": {
+      "precision": 0.705,
+      "recall": 0.898,
+      "f1": 0.79,
+      "soporte": 88
+    },
+    "feature": {
+      "precision": 0.772,
+      "recall": 0.698,
+      "f1": 0.733,
+      "soporte": 63
+    },
+    "question": {
+      "precision": 0.619,
+      "recall": 0.361,
+      "f1": 0.456,
+      "soporte": 36
+    },
+    "docs": {
+      "precision": 0.889,
+      "recall": 0.615,
+      "f1": 0.727,
+      "soporte": 13
+    }
+  },
+  "confusion": [
+    [
+      "question->bug",
+      19
+    ],
+    [
+      "feature->bug",
+      12
+    ],
+    [
+      "feature->question",
+      6
+    ],
+    [
+      "bug->feature",
+      6
+    ],
+    [
+      "question->feature",
+      4
+    ],
+    [
+      "docs->feature",
+      3
+    ],
+    [
+      "docs->bug",
+      2
+    ],
+    [
+      "bug->question",
+      2
+    ]
+  ]
+}
