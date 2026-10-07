@@ -1,0 +1,143 @@
+{
+  "modelo": "openai_ja",
+  "modelo_openai": "gpt-6-luna",
+  "muestra": "datos\\traducciones\\validacion\\ja.csv",
+  "variante": "sin_other",
+  "issues": 500,
+  "issues_sin_respuesta": 0,
+  "rechazos": 0,
+  "exactitud": 0.836,
+  "f1_macro": 0.644,
+  "umbral": 0.6,
+  "cobertura_con_umbral": 0.96,
+  "exactitud_con_umbral": 0.854,
+  "curva_prob_maxima": [
+    {
+      "umbral": 0.4,
+      "cobertura": 1.0,
+      "precision": 0.836
+    },
+    {
+      "umbral": 0.45,
+      "cobertura": 0.996,
+      "precision": 0.837
+    },
+    {
+      "umbral": 0.5,
+      "cobertura": 0.988,
+      "precision": 0.84
+    },
+    {
+      "umbral": 0.55,
+      "cobertura": 0.97,
+      "precision": 0.852
+    },
+    {
+      "umbral": 0.6,
+      "cobertura": 0.96,
+      "precision": 0.854
+    },
+    {
+      "umbral": 0.65,
+      "cobertura": 0.94,
+      "precision": 0.862
+    },
+    {
+      "umbral": 0.7,
+      "cobertura": 0.922,
+      "precision": 0.868
+    },
+    {
+      "umbral": 0.75,
+      "cobertura": 0.904,
+      "precision": 0.869
+    },
+    {
+      "umbral": 0.8,
+      "cobertura": 0.888,
+      "precision": 0.881
+    },
+    {
+      "umbral": 0.85,
+      "cobertura": 0.852,
+      "precision": 0.887
+    },
+    {
+      "umbral": 0.9,
+      "cobertura": 0.834,
+      "precision": 0.892
+    },
+    {
+      "umbral": 0.95,
+      "cobertura": 0.786,
+      "precision": 0.901
+    }
+  ],
+  "latencia_ms": {
+    "mediana": 241.5,
+    "p95": 488.8
+  },
+  "tokens_entrada": 186666,
+  "tokens_reales": true,
+  "costo_usd": 0.0187,
+  "por_clase": {
+    "bug": {
+      "precision": 0.929,
+      "recall": 0.886,
+      "f1": 0.907,
+      "soporte": 281
+    },
+    "feature": {
+      "precision": 0.817,
+      "recall": 0.865,
+      "f1": 0.84,
+      "soporte": 170
+    },
+    "question": {
+      "precision": 0.381,
+      "recall": 0.64,
+      "f1": 0.478,
+      "soporte": 25
+    },
+    "docs": {
+      "precision": 0.6,
+      "recall": 0.25,
+      "f1": 0.353,
+      "soporte": 24
+    }
+  },
+  "confusion": [
+    [
+      "bug->feature",
+      16
+    ],
+    [
+      "docs->feature",
+      14
+    ],
+    [
+      "bug->question",
+      14
+    ],
+    [
+      "feature->bug",
+      11
+    ],
+    [
+      "feature->question",
+      10
+    ],
+    [
+      "question->bug",
+      6
+    ],
+    [
+      "question->feature",
+      3
+    ],
+    [
+      "docs->question",
+      2
+    ]
+  ]
+}

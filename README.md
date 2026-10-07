@@ -26,7 +26,7 @@ laya-triage is a GitHub Action that reads every new issue in your repository, la
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/exactitud-dark.png">
-    <img alt="Accuracy on the NLBSE'23 issue classification test: RoBERTa baseline 89.1%, laya-triage v1.1 88.8%, FastText 85.1%, Jev 84.4%, Laya base 75.9%, laya-issue-triage 64.5%" src="docs/benchmarks/exactitud-light.png">
+    <img alt="Accuracy on the NLBSE'23 issue classification test: RoBERTa baseline 89.1%, laya-triage v1.1 88.8%, FastText 85.1%, Jev 84.4%, OpenAI Decisions 83.7%, Laya base 75.9%, laya-issue-triage 64.5%" src="docs/benchmarks/exactitud-light.png">
   </picture>
 </p>
 
@@ -173,25 +173,25 @@ On the recent-issues benchmark described [below](#how-it-was-measured) it helps 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/cien-issues-dark.png">
-    <img alt="Out of every 100 new issues. NLBSE'23 test: Laya base labels 51 right, 6 wrong and leaves 43; Jev 82 right, 13 wrong, 5 left; laya-triage v1.1 84 right, 7 wrong, 9 left. Recent issues: Jev 77 right, 20 wrong, 3 left; laya-triage v1.1 77 right, 12 wrong, 11 left for a maintainer" src="docs/benchmarks/cien-issues-light.png">
+    <img alt="Out of every 100 new issues. NLBSE'23 test: Laya base labels 51 right, 6 wrong and leaves 43; Jev 82 right, 13 wrong, 5 left; OpenAI Decisions 83 right, 15 wrong, 2 left; laya-triage v1.1 84 right, 7 wrong, 9 left. Recent issues: Jev 77 right, 20 wrong, 3 left; OpenAI Decisions 77 right, 21 wrong, 2 left; laya-triage v1.1 77 right, 12 wrong, 11 left for a maintainer" src="docs/benchmarks/cien-issues-light.png">
   </picture>
 </p>
 
-laya-triage only labels an issue when confident and sends the rest to `needs-triage`. On the NLBSE'23 test it labels 91.0% of issues automatically and gets 92.3% of those right. On both test sets it puts fewer wrong labels on your issues than Jev: 7 versus 13 per 100 on NLBSE'23, and 12 versus 20 on recent issues from active repositories.
+laya-triage only labels an issue when confident and sends the rest to `needs-triage`. On the NLBSE'23 test it labels 91.0% of issues automatically and gets 92.3% of those right. On both test sets it puts fewer wrong labels on your issues than the hosted decision APIs: 7 per 100 on NLBSE'23 against 13 for Jev and 15 for OpenAI Decisions, and 12 on recent issues from active repositories against 20 and 21.
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/repos-actuales-dark.png">
-    <img alt="Accuracy on 10,026 issues from 2025-2026 in 288 active repositories: laya-triage v1.1 82.3%, laya-triage v1.0 79.8%, Jev 78.1%, always bug 57.6%" src="docs/benchmarks/repos-actuales-light.png">
+    <img alt="Accuracy on 10,026 issues from 2025-2026 in 288 active repositories: laya-triage v1.1 82.3%, laya-triage v1.0 79.8%, Jev 78.1%, OpenAI Decisions 78.1%, always bug 57.6%" src="docs/benchmarks/repos-actuales-light.png">
   </picture>
 </p>
 
-Issues written today are harder than any benchmark, so we also measured recent issues from active repositories that were never used for training. v1.1 learned from 127,140 recent issues on top of the original million, and it adapts to each repository's mix of bugs, features and questions by default. It reaches 82.3% against 78.1% for Jev, and recognizes twice as many questions (58.3% against 29.6%).
+Issues written today are harder than any benchmark, so we also measured recent issues from active repositories that were never used for training. v1.1 learned from 127,140 recent issues on top of the original million, and it adapts to each repository's mix of bugs, features and questions by default. It reaches 82.3% against 78.1% for both Jev and OpenAI Decisions, and recognizes almost twice as many questions (58.3% against 29.6% and 33.5%).
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/comparativa-dark.png">
-    <img alt="Comparison of laya-triage with Jev, laya-issue-triage, the NLBSE'23 research baselines, ai-assessment-comment-labeler, ai-labeler, Dosu and issue-labeler on accuracy on NLBSE'23 and on recent repositories, cost, where issue text goes, API keys, languages and confidence" src="docs/benchmarks/comparativa-light.png">
+    <img alt="Comparison of laya-triage with Jev, OpenAI Decisions, laya-issue-triage, the NLBSE'23 research baselines, ai-assessment-comment-labeler, ai-labeler, Dosu and issue-labeler on accuracy on NLBSE'23 and on recent repositories, cost, where issue text goes, API keys, languages and confidence" src="docs/benchmarks/comparativa-light.png">
   </picture>
 </p>
 
@@ -200,11 +200,11 @@ Hosted triage costs money every month, and someone must keep paying for it. The 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/idiomas-dark.png">
-    <img alt="Accuracy in 14 languages: laya-triage v1.1 between 84.8% and 92.4%, Jev between 83.8% and 88.2%, Laya base between 64.2% and 89.2%" src="docs/benchmarks/idiomas-light.png">
+    <img alt="Accuracy in 14 languages: laya-triage v1.1 between 84.8% and 92.4%, Jev between 83.8% and 88.2%, OpenAI Decisions between 80.2% and 84.6%, Laya base between 64.2% and 89.2%" src="docs/benchmarks/idiomas-light.png">
   </picture>
 </p>
 
-Issues in other languages go to a multilingual model. It is ahead of a hosted API in 11 of 14 languages, and on real non-English issues from active repositories it gets 77.6% right.
+Issues in other languages go to a multilingual model. It is ahead of Jev in 11 of 14 languages and of OpenAI Decisions in all 14, and on real non-English issues from active repositories it gets 77.6% right.
 
 <p align="center">
   <picture>
@@ -229,11 +229,11 @@ v1.1 is more careful: it gets more issues right on recent repositories, puts a w
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/curva-dark.png">
-    <img alt="Accuracy of every laya-triage English model by training issues. NLBSE'23 validation: 40k 85.6%, 150k 86.8%, 500k 88.5%, 1M (v1.0) 88.7%, 1.13M (v1.1) 88.8%, all above Jev at 84.4%. Recent issues: v1.0 79.8%, v1.1 82.3%, above Jev at 78.1%" src="docs/benchmarks/curva-light.png">
+    <img alt="Accuracy of every laya-triage English model by training issues. NLBSE'23 validation: 40k 85.6%, 150k 86.8%, 500k 88.5%, 1M (v1.0) 88.7%, 1.13M (v1.1) 88.8%, all above Jev at 84.4% and OpenAI Decisions at 83.7%. Recent issues: v1.0 79.8%, v1.1 82.3%, above Jev and OpenAI Decisions at 78.1%" src="docs/benchmarks/curva-light.png">
   </picture>
 </p>
 
-Every laya-triage model since 40k issues beats Jev on NLBSE'23, and v1.0 and v1.1 beat it on recent issues too. Each was trained for one epoch on a single RTX 5070. Past a million NLBSE'23 issues, more of the same data barely moves the benchmark; recent issues are what moved v1.1 on today's repositories. Fine-tuning v1.0 on them reached 81.9% there but lost almost a point on NLBSE'23, so v1.1 was trained from scratch on both at once.
+Every laya-triage model since 40k issues beats Jev and OpenAI Decisions on NLBSE'23, and v1.0 and v1.1 beat both on recent issues too. Each was trained for one epoch on a single RTX 5070. Past a million NLBSE'23 issues, more of the same data barely moves the benchmark; recent issues are what moved v1.1 on today's repositories. Fine-tuning v1.0 on them reached 81.9% there but lost almost a point on NLBSE'23, so v1.1 was trained from scratch on both at once.
 
 ## Inputs
 
@@ -327,18 +327,20 @@ With a GitHub App token, the workflow only needs `contents: read`.
 
 ## How it was measured
 
-The headline number comes from a fresh random sample of 5,000 issues from the official [NLBSE'23](https://github.com/nlbse2023/issue-report-classification) test set. It was used once per version, after every decision was frozen on a separate validation split; v1.0 and v1.1 both score 88.8% on it. Jev, Laya base and laya-issue-triage were run by us, with the same question, on an earlier 5,000-issue sample of the same test set. An earlier laya-triage model scored 86.8% there and 87.2% on the fresh sample, so the two samples agree. The ±0.9 point margin is the 95% interval for 5,000 issues.
+The headline number comes from a fresh random sample of 5,000 issues from the official [NLBSE'23](https://github.com/nlbse2023/issue-report-classification) test set. It was used once per version, after every decision was frozen on a separate validation split; v1.0 and v1.1 both score 88.8% on it. Jev, OpenAI Decisions, Laya base and laya-issue-triage were run by us, with the same question, on an earlier 5,000-issue sample of the same test set; OpenAI Decisions answered exactly the issues Jev did. An earlier laya-triage model scored 86.8% there and 87.2% on the fresh sample, so the two samples agree. The ±0.9 point margin is the 95% interval for 5,000 issues.
 
-To check that the models are not tuned to an old dataset, we also collected 2,000 closed issues opened in 2026 across 1,145 repositories, 500 per class. The set is balanced on purpose, so it weighs questions four times more than a typical repository does. With class priors set to that mix, laya-triage v1.1 reaches a macro F1 of 0.758 (v1.0: 0.734), against 0.660 for Jev:
+To check that the models are not tuned to an old dataset, we also collected 2,000 closed issues opened in 2026 across 1,145 repositories, 500 per class. The set is balanced on purpose, so it weighs questions four times more than a typical repository does. With class priors set to that mix, laya-triage v1.1 reaches a macro F1 of 0.758 (v1.0: 0.734), against 0.660 for Jev and 0.602 for OpenAI Decisions, both without priors:
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/issues-2026-dark.png">
-    <img alt="Macro F1 on 2,000 real issues from 2026: laya-triage v1.1 adapted to the repository 0.758, Jev 0.660, Laya base 0.523" src="docs/benchmarks/issues-2026-light.png">
+    <img alt="Macro F1 on 2,000 real issues from 2026: laya-triage v1.1 adapted to the repository 0.758, Jev 0.660, OpenAI Decisions 0.602, Laya base 0.523" src="docs/benchmarks/issues-2026-light.png">
   </picture>
 </p>
 
-The recent-issues benchmark has 10,026 closed issues opened in 2025 and 2026 in 288 repositories with at least 1,000 stars and recent activity. We kept only issues with a single type label that a maintainer applied, not the author or an issue template, and no repository in it was used for training. The 127,140 recent training issues follow the same rules and come from other repositories. To simulate `class-priors: auto`, each issue's repository mix was estimated from the other labeled issues of the same repository, never from the issue itself. Jev cost $0.30 for this run.
+The recent-issues benchmark has 10,026 closed issues opened in 2025 and 2026 in 288 repositories with at least 1,000 stars and recent activity. We kept only issues with a single type label that a maintainer applied, not the author or an issue template, and no repository in it was used for training. The 127,140 recent training issues follow the same rules and come from other repositories. To simulate `class-priors: auto`, each issue's repository mix was estimated from the other labeled issues of the same repository, never from the issue itself. Jev cost $0.30 for this run and OpenAI Decisions $0.46.
+
+OpenAI Decisions is OpenAI's Decisions API with `gpt-6-luna`, announced in September 2026 and still in public beta when we measured it on October 6, 2026, with the same question as every other model; numbers may change as the beta evolves.
 
 The scripts behind every number are in [`bench/`](bench) and [`entrenamiento/`](entrenamiento), and the raw results are in [`bench/resultados/`](bench/resultados). A longer write-up is in [docs/comparison.md](docs/comparison.md).
 
@@ -356,7 +358,7 @@ If laya-triage saves you time, a ⭐ helps other maintainers find it.
 
 ## Credits
 
-Built on [Laya](https://github.com/NandhaKishorM/laya) by Convai Innovations (Apache 2.0). Training and test data from the [NLBSE'23 tool competition](https://github.com/nlbse2023/issue-report-classification). Translations with [NLLB-200](https://huggingface.co/facebook/nllb-200-distilled-600M).
+Built on [Laya](https://github.com/NandhaKishorM/laya) by Convai Innovations (Apache 2.0). Training and test data from the [NLBSE'23 tool competition](https://github.com/nlbse2023/issue-report-classification). Translations with [NLLB-200](https://huggingface.co/facebook/nllb-200-distilled-600M). Translations with [NLLB-200](https://huggingface.co/facebook/nllb-200-distilled-600M).
 
 ## License
 
