@@ -136,6 +136,7 @@ def main():
     from modelos import rutas_modelos
     from triage import limpiar_cuerpo
 
+    os.makedirs(os.path.dirname(RUTA_MEMORIA), exist_ok=True)
     repo = os.environ.get("GITHUB_REPOSITORY")
     token = os.environ.get("GITHUB_TOKEN")
     if not repo or not token:
