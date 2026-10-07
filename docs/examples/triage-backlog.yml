@@ -1,0 +1,27 @@
+name: Triage backlog
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Only show the decisions, without labeling"
+        type: choice
+        options: ["true", "false"]
+        default: "true"
+      limit:
+        description: "Maximum number of open issues to classify"
+        default: "100"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  backlog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: elnachto/laya-triage@v1
+        with:
+          mode: backlog
+          dry-run: ${{ inputs.dry-run }}
+          backlog-limit: ${{ inputs.limit }}

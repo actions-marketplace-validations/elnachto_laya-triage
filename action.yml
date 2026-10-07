@@ -6,7 +6,7 @@ branding:
 
 inputs:
   mode:
-    description: "Use 'triage' to classify issues and pull requests, or 'warm-cache' to download the models and save them in the cache"
+    description: "Use 'triage' to classify new issues and pull requests, 'backlog' to classify the open issues that have no type label yet, or 'warm-cache' to download the models and save them in the cache"
     required: false
     default: "triage"
   github-token:
@@ -29,6 +29,10 @@ inputs:
     description: "Label names to use. 'auto' reuses your existing labels (for example 'type: bug' or 'kind/feature'), or map them yourself, like 'bug=type: bug,feature=feature request'"
     required: false
     default: "auto"
+  backlog-limit:
+    description: "In 'backlog' mode, the maximum number of open issues to classify, newest first (up to 500)"
+    required: false
+    default: "100"
 
 runs:
   using: "composite"
@@ -82,8 +86,10 @@ runs:
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
+        LAYA_MODE: ${{ inputs.mode }}
         LAYA_DRY_RUN: ${{ inputs.dry-run }}
         LAYA_SPAM_CHECK: ${{ inputs.spam-check }}
         LAYA_CLASS_PRIORS: ${{ inputs.class-priors }}
         LAYA_LABELS: ${{ inputs.labels }}
+        LAYA_BACKLOG_LIMIT: ${{ inputs.backlog-limit }}
       run: '"$HOME/laya-venv/bin/python" "${{ github.action_path }}/triage.py"'

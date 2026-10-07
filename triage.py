@@ -21,6 +21,8 @@ UMBRAL_SPAM = 0.70
 MAX_LINEAS_TRIVIAL = 5
 MIN_CARACTERES_UTILES = 30
 LIMITE_CUERPO = 1500
+LIMITE_BACKLOG = 100
+MAXIMO_BACKLOG = 500
 
 PATRONES_RUIDO = [
     re.compile(r"^\s*#{1,6}\s"),
@@ -138,6 +140,10 @@ def spam_activado():
     return os.environ.get("LAYA_SPAM_CHECK", "false").strip().lower() == "true"
 
 
+def en_modo_prueba():
+    return os.environ.get("LAYA_DRY_RUN", "true").strip().lower() != "false"
+
+
 def decidir_issue(respuestas, cuerpo_util, nombres=None):
     etiquetas = []
     comentario = None
@@ -221,15 +227,119 @@ def aplicar_cambios(repo, numero, etiquetas, comentario):
         llamar_api("POST", f"/repos/{repo}/issues/{numero}/comments", {"body": comentario + FIRMA})
 
 
+def escribir_resumen(titulo, filas, modo_prueba):
+    ruta = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not ruta:
+        return
+    estado = "Dry run: nothing was changed" if modo_prueba else "Changes applied"
+    lineas = [
+        f"### laya-triage · {titulo}",
+        "",
+        f"_{estado}_",
+        "",
+        "| Issue | Title | Decision | Confidence |",
+        "|---|---|---|---|",
+    ]
+    for numero, texto, decision, confianza in filas:
+        limpio = texto.replace("|", "\\|")[:80]
+        porcentaje = f"{confianza:.0%}" if confianza is not None else "—"
+        lineas.append(f"| #{numero} | {limpio} | {decision} | {porcentaje} |")
+    with open(ruta, "a", encoding="utf-8") as archivo:
+        archivo.write("\n".join(lineas) + "\n\n")
+
+
+def limite_backlog():
+    try:
+        limite = int(os.environ.get("LAYA_BACKLOG_LIMIT", LIMITE_BACKLOG))
+    except ValueError:
+        limite = LIMITE_BACKLOG
+    return max(1, min(limite, MAXIMO_BACKLOG))
+
+
+def issues_del_backlog(repo, nombres, limite):
+    pendientes = []
+    pagina = 1
+    while len(pendientes) < limite:
+        _, issues = llamar_api(
+            "GET", f"/repos/{repo}/issues?state=open&sort=created&direction=desc&per_page=100&page={pagina}"
+        )
+        if not issues:
+            break
+        for issue in issues:
+            if "pull_request" in issue:
+                continue
+            nombres_etiquetas = {e.get("name", "") for e in issue.get("labels") or []}
+            if "needs-triage" in nombres_etiquetas or tipo_existente(issue, nombres)[0]:
+                continue
+            pendientes.append(issue)
+            if len(pendientes) >= limite:
+                break
+        if len(issues) < 100:
+            break
+        pagina += 1
+    return pendientes
+
+
+def triar_backlog(evento, rutas, priores, bases):
+    repo = evento.get("repository", {}).get("full_name") or os.environ.get("GITHUB_REPOSITORY")
+    token = os.environ.get("GITHUB_TOKEN")
+    if not repo or not token:
+        sys.exit("El modo backlog necesita GITHUB_REPOSITORY y GITHUB_TOKEN")
+
+    nombres, mezcla = configuracion_del_repo(repo, token)
+    limite = limite_backlog()
+    issues = issues_del_backlog(repo, nombres, limite)
+    print(f"{len(issues)} issues abiertos sin etiqueta de tipo en {repo} (límite {limite})")
+    modo_prueba = en_modo_prueba()
+    if not issues:
+        escribir_resumen("backlog", [], modo_prueba)
+        return
+
+    lineas = cargar_plantillas(repo, token)
+    cuerpos = [limpiar_cuerpo(quitar_plantilla(issue.get("body"), lineas)) for issue in issues]
+    peticiones = [
+        {"state": {"title": issue["title"], "body": cuerpo}, "questions": PREGUNTAS_ISSUE}
+        for issue, cuerpo in zip(issues, cuerpos)
+    ]
+    router = Router(models=rutas, default="multilingual")
+    resultados = router.predict_batch(peticiones, batch_size=8)
+
+    filas = []
+    etiquetados = 0
+    for issue, resultado in zip(issues, resultados):
+        modelo = resultado["routing"]["model"]
+        pesos = pesos_para_ruta(mezcla, priores.get(modelo), bases.get(modelo))
+        tipo = aplicar_priores(resultado["answers"]["tipo"], pesos)
+        confianza = tipo["answer_confidence"]
+        if confianza >= UMBRAL_TIPO:
+            etiqueta = nombres[tipo["choice"]]
+            filas.append((issue["number"], issue["title"], etiqueta, confianza))
+            etiquetados += 1
+            if not modo_prueba:
+                aplicar_cambios(repo, issue["number"], [etiqueta], None)
+        else:
+            filas.append((issue["number"], issue["title"], "left for a maintainer", confianza))
+        print(f"#{issue['number']}: {filas[-1][2]} ({confianza:.0%}) · {issue['title'][:70]}")
+
+    print(f"{etiquetados} de {len(issues)} issues con confianza suficiente")
+    print("Modo dry-run: no se aplicó ningún cambio" if modo_prueba else "Etiquetas aplicadas")
+    escribir_resumen(f"backlog · {etiquetados} of {len(issues)} labeled", filas, modo_prueba)
+
+
 def main():
     evento = cargar_evento()
-    if "pull_request" in evento and not spam_activado():
+    modo = os.environ.get("LAYA_MODE", "triage").strip().lower()
+    if "pull_request" in evento and modo != "backlog" and not spam_activado():
         print("La revisión de spam en pull requests está desactivada: usa spam-check: true para probarla")
         return
 
     rutas = rutas_modelos()
     priores = {nombre: leer_priores(carpeta) for nombre, carpeta in rutas.items()}
     bases = {nombre: leer_mezcla_base(carpeta) for nombre, carpeta in rutas.items()}
+
+    if modo == "backlog":
+        triar_backlog(evento, rutas, priores, bases)
+        return
 
     if "pull_request" in evento:
         item = evento["pull_request"]
@@ -261,7 +371,7 @@ def main():
                 "comentario": comentario,
             }, indent=2, ensure_ascii=False))
             print(f"El issue ya tiene la etiqueta de tipo '{etiqueta_previa}': no lo vuelvo a clasificar")
-            if etiquetas and os.environ.get("LAYA_DRY_RUN", "true").strip().lower() == "false":
+            if etiquetas and not en_modo_prueba():
                 aplicar_cambios(os.environ["GITHUB_REPOSITORY"], item["number"], etiquetas, comentario)
             return
         estado = {"title": item["title"], "body": cuerpo_util}
@@ -273,7 +383,7 @@ def main():
         etiquetas, comentario = decidir_issue(resultado["answers"], cuerpo_util, nombres)
         tipo_item = "issue"
     else:
-        sys.exit("Evento no soportado: solo issues y pull requests")
+        sys.exit("Evento no soportado: solo issues y pull requests, o mode: backlog")
 
     resumen = {
         "tipo": tipo_item,
@@ -292,11 +402,19 @@ def main():
     }
     print(json.dumps(resumen, indent=2, ensure_ascii=False))
 
+    modo_prueba = en_modo_prueba()
+    confianza = resultado["answers"]["tipo"]["answer_confidence"] if tipo_item == "issue" else None
+    decision = ", ".join(etiquetas) if etiquetas else "no changes"
+    escribir_resumen(
+        "new issue" if tipo_item == "issue" else "pull request",
+        [(item["number"], item["title"], decision, confianza)],
+        modo_prueba,
+    )
+
     if not etiquetas and not comentario:
         print("No hay nada que aplicar")
         return
 
-    modo_prueba = os.environ.get("LAYA_DRY_RUN", "true").strip().lower() != "false"
     if modo_prueba:
         print("Modo dry-run: no se aplicó ningún cambio")
         return
