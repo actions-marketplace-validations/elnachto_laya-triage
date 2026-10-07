@@ -1,0 +1,11 @@
+{
+  "issue": {
+    "number": 999999999,
+    "title": "Terminal font looks blurry after the update",
+    "body": "Since the last update the integrated terminal font looks blurry on Windows. Is there a setting I need to change, or is this a bug?",
+    "labels": []
+  },
+  "repository": {
+    "full_name": "microsoft/vscode"
+  }
+}

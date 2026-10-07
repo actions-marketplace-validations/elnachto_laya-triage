@@ -1,0 +1,54 @@
+{
+  "modelo": "knn_examen",
+  "muestra": "datos\\calidad\\examen.csv",
+  "codificador": "english",
+  "largo": 256,
+  "temperatura": 0.05,
+  "minimo": 5,
+  "cobertura_base": 0.8877,
+  "solo_modelo": {
+    "exactitud": 0.8231,
+    "f1_macro": 0.7423,
+    "cobertura_con_umbral": 0.8877,
+    "exactitud_con_umbral": 0.8627,
+    "f1_question": 0.649,
+    "f1_docs": 0.65,
+    "precision_misma_cobertura": 0.8627
+  },
+  "tabla": [
+    {
+      "vectores": "completo",
+      "fusion": "geometrica",
+      "k": 20,
+      "umbral_duda": 0.4,
+      "peso_vecinos": 0.4,
+      "issues_con_vecinos": 1346,
+      "total": {
+        "exactitud": 0.8267,
+        "f1_macro": 0.7445,
+        "cobertura_con_umbral": 0.8932,
+        "exactitud_con_umbral": 0.8663,
+        "f1_question": 0.689,
+        "f1_docs": 0.622,
+        "precision_misma_cobertura": 0.8681
+      }
+    }
+  ],
+  "mejor": {
+    "vectores": "completo",
+    "fusion": "geometrica",
+    "k": 20,
+    "umbral_duda": 0.4,
+    "peso_vecinos": 0.4,
+    "issues_con_vecinos": 1346,
+    "total": {
+      "exactitud": 0.8267,
+      "f1_macro": 0.7445,
+      "cobertura_con_umbral": 0.8932,
+      "exactitud_con_umbral": 0.8663,
+      "f1_question": 0.689,
+      "f1_docs": 0.622,
+      "precision_misma_cobertura": 0.8681
+    }
+  }
+}

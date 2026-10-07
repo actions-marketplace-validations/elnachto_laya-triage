@@ -6,7 +6,7 @@ branding:
 
 inputs:
   mode:
-    description: "Use 'triage' to classify issues and pull requests, or 'warm-cache' to download the models and save them in the cache"
+    description: "Use 'triage' to classify new issues and pull requests, 'backlog' to classify the open issues that have no type label yet, or 'warm-cache' to download the models and save them in the cache"
     required: false
     default: "triage"
   github-token:
@@ -29,6 +29,14 @@ inputs:
     description: "Label names to use. 'auto' reuses your existing labels (for example 'type: bug' or 'kind/feature'), or map them yourself, like 'bug=type: bug,feature=feature request'"
     required: false
     default: "auto"
+  backlog-limit:
+    description: "In 'backlog' mode, the maximum number of open issues to classify, newest first (up to 500)"
+    required: false
+    default: "100"
+  repo-memory:
+    description: "Experimental. When 'true', uncertain decisions also look at the most similar closed issues of your repository. Set it in both the triage and the warm-cache workflows"
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -64,6 +72,13 @@ runs:
         path: ~/.cache/huggingface
         key: laya-triage-models-9596364-6c2dad2
 
+    - if: inputs.mode != 'warm-cache' && inputs.repo-memory == 'true'
+      uses: actions/cache/restore@v6
+      with:
+        path: ~/.cache/laya-triage
+        key: laya-triage-memory-${{ github.run_id }}
+        restore-keys: laya-triage-memory-
+
     - name: Install dependencies
       if: steps.venv-save.outputs.cache-hit != 'true' && steps.venv-restore.outputs.cache-hit != 'true'
       shell: bash
@@ -77,13 +92,29 @@ runs:
       shell: bash
       run: '"$HOME/laya-venv/bin/python" "${{ github.action_path }}/modelos.py"'
 
+    - name: Build repo memory
+      if: inputs.mode == 'warm-cache' && inputs.repo-memory == 'true'
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: '"$HOME/laya-venv/bin/python" "${{ github.action_path }}/memoria.py"'
+
+    - if: inputs.mode == 'warm-cache' && inputs.repo-memory == 'true'
+      uses: actions/cache/save@v6
+      with:
+        path: ~/.cache/laya-triage
+        key: laya-triage-memory-${{ github.run_id }}
+
     - name: Run triage
       if: inputs.mode != 'warm-cache'
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
+        LAYA_MODE: ${{ inputs.mode }}
         LAYA_DRY_RUN: ${{ inputs.dry-run }}
         LAYA_SPAM_CHECK: ${{ inputs.spam-check }}
         LAYA_CLASS_PRIORS: ${{ inputs.class-priors }}
         LAYA_LABELS: ${{ inputs.labels }}
+        LAYA_BACKLOG_LIMIT: ${{ inputs.backlog-limit }}
+        LAYA_REPO_MEMORY: ${{ inputs.repo-memory }}
       run: '"$HOME/laya-venv/bin/python" "${{ github.action_path }}/triage.py"'

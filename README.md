@@ -38,6 +38,9 @@ laya-triage is a GitHub Action that reads every new issue in your repository, la
 | New issue | Low confidence | ![needs-triage](https://img.shields.io/badge/needs--triage-9C98AE) for a human to review |
 | New bug report | Almost no real content once the template is removed | ![needs-more-info](https://img.shields.io/badge/needs--more--info-6B3FE7) and a comment asking for steps, version and expected behavior |
 | New pull request | Trivial change that looks like spam (experimental, off by default) | ![spam-probable](https://img.shields.io/badge/spam--probable-9C98AE) and a polite comment |
+| Manual run in `backlog` mode | Type of every open issue that has no type label yet | The same type labels, only when confident, and no comments |
+
+Every run writes a table with its decisions to the workflow run summary, so you can review them without reading the logs.
 
 laya-triage never closes issues or pull requests. Maintainers keep full control over decisions.
 
@@ -83,6 +86,7 @@ Ready-to-copy workflows live in [`docs/examples/`](docs/examples/):
 - [`triage.yml`](docs/examples/triage.yml) — basic setup
 - [`triage-github-app.yml`](docs/examples/triage-github-app.yml) — GitHub App token so labels come from a bot with its own name
 - [`triage-custom-labels.yml`](docs/examples/triage-custom-labels.yml) — custom label names
+- [`triage-backlog.yml`](docs/examples/triage-backlog.yml) — classify the open issues you already have
 
 ## Recommended: warm the model cache
 
@@ -108,9 +112,61 @@ jobs:
           mode: warm-cache
 ```
 
+To use [repo memory](#experimental-repo-memory), add `repo-memory: "true"` here too. For a private repository, also give this workflow `issues: read`.
+
 GitHub removes caches that haven't been used for seven days, so the schedule runs twice a week to keep the cache alive. Additionally, GitHub suspends any scheduled workflows after 60 days of inactivity in the repository; in that case, re-enable the workflow from the Actions tab.
 
 On a typical runner, a triage run takes 30 to 40 seconds with a warm cache.
+
+## Label the issues you already have
+
+laya-triage only sees issues when they are opened. To classify the open issues that are already in your repository, add [`triage-backlog.yml`](docs/examples/triage-backlog.yml) and run it from the Actions tab:
+
+```yaml
+name: Triage backlog
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Only show the decisions, without labeling"
+        type: choice
+        options: ["true", "false"]
+        default: "true"
+      limit:
+        description: "Maximum number of open issues to classify"
+        default: "100"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  backlog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: elnachto/laya-triage@v1
+        with:
+          mode: backlog
+          dry-run: ${{ inputs.dry-run }}
+          backlog-limit: ${{ inputs.limit }}
+```
+
+It skips issues that already have a type label or `needs-triage`, labels only the ones it is confident about, and never comments on old issues. Run it first with dry-run on and read the table in the run summary; if you like the decisions, run it again with dry-run off.
+
+## Experimental: repo memory
+
+When the model is unsure between two types, repo memory looks at the 20 most similar closed issues of your repository and lets their labels vote. A repository where questions about configuration are labeled `question` teaches the action to do the same.
+
+Turn it on in both workflows: the warm-cache workflow builds the memory from up to 100 closed issues per type label, and the triage workflow reads it.
+
+```yaml
+      - uses: elnachto/laya-triage@v1
+        with:
+          repo-memory: "true"
+```
+
+On the recent-issues benchmark described [below](#how-it-was-measured) it helps a little: accuracy goes from 82.3% to 82.7%, questions recognized go up (F1 0.649 to 0.689), docs go slightly down (F1 0.650 to 0.622), and the share of issues labeled automatically goes from 88.8% to 89.3% at slightly higher precision. It is off by default until it has been tested on more real repositories. It only uses closed issues, which a maintainer has usually reviewed, so the action does not learn from its own unreviewed labels.
 
 ## How it compares
 
@@ -184,11 +240,13 @@ Every laya-triage model since 40k issues beats Jev on NLBSE'23, and v1.0 and v1.
 | Input | Default | Description |
 |---|---|---|
 | `dry-run` | `"true"` | Set to `"false"` to apply labels and comments |
-| `mode` | `"triage"` | Use `"warm-cache"` to download the models and save them in the cache |
+| `mode` | `"triage"` | `"backlog"` classifies the open issues that have no type label yet. `"warm-cache"` downloads the models and saves them in the cache |
 | `github-token` | `github.token` | Token used to add labels and comments |
 | `spam-check` | `"false"` | Experimental. Set to `"true"` to check new pull requests for low-effort spam |
 | `class-priors` | `"auto"` | How common each issue type is in your repository. `"auto"` counts the issues you labeled in the last year, `"natural"` uses the typical GitHub mix, or pass your own, like `"bug=0.5,feature=0.3,question=0.15,docs=0.05"` |
 | `labels` | `"auto"` | `"auto"` reuses your existing type labels (such as `type: bug` or `kind/feature`) instead of creating new ones. You can also map them yourself: `"bug=type: bug,feature=feature request"` |
+| `backlog-limit` | `"100"` | In `backlog` mode, the maximum number of open issues to classify, newest first (up to 500) |
+| `repo-memory` | `"false"` | Experimental. Set to `"true"` in the triage and warm-cache workflows to let similar closed issues vote when the model is unsure |
 
 To try the spam check, also listen to pull requests and give the workflow write access to them:
 
@@ -245,7 +303,9 @@ With a GitHub App token, the workflow only needs `contents: read`.
 3. The Laya router sends English issues to [laya-triage-en](https://huggingface.co/elnachto/laya-triage-en) and other languages to [laya-triage-multilingual](https://huggingface.co/elnachto/laya-triage-multilingual). Both are downloaded at a fixed revision, so `@v1` always uses the exact models that were measured.
 4. The model answers in a single forward pass on the runner's CPU. Each model stores the mix of bugs, features, questions and docs it was trained on, so the next step knows where it starts from.
 5. The answer is adjusted to your repository: the action counts how many of the issues you labeled in the last year are bugs, feature requests, questions and docs, so a repository full of questions gets more `question` labels.
-6. If the confidence is at least 0.60, the label is applied, using your own label names when you already have them. Otherwise the issue gets `needs-triage`.
+6. With `repo-memory: "true"`, if the two most likely types are close, the most similar closed issues of your repository vote as well.
+7. If the confidence is at least 0.60, the label is applied, using your own label names when you already have them. Otherwise the issue gets `needs-triage`.
+8. The decision is written to the workflow run summary.
 
 ## Security
 
@@ -261,6 +321,7 @@ With a GitHub App token, the workflow only needs `contents: read`.
 - Issues written today are harder than the NLBSE'23 test set: accuracy goes from 88.8% there to 82.3% on recent issues from active repositories.
 - `class-priors: auto` needs at least 30 issues labeled in the last year and counts every one of them, including the ones laya-triage labeled itself. If most of your labels come from the action, set the mix by hand.
 - The multilingual model learned other languages from machine-translated issues, and was then fine-tuned on recent real issues. It is measured on 14 languages; other languages work through the base model but aren’t evaluated.
+- Repo memory is experimental. It needs at least 5 closed issues with a type label, it can only vote for types your repository labels, and on our benchmark it slightly lowers docs recall.
 - The spam check is experimental: on our pull request data it catches only a small share of spam, which is why it is off by default.
 - Bug reports with less than 30 characters of real content get `needs-more-info`. Very short but complete reports may also get this label.
 
