@@ -8,6 +8,9 @@ import urllib.request
 
 from laya import Router
 
+from memoria import (
+    MARGEN_DUDA, cargar as cargar_memoria, fusionar, incrustador, margen, memoria_activada, texto_issue, votar,
+)
 from modelos import leer_mezcla_base, leer_priores, rutas_modelos
 from plantillas import cargar_plantillas, quitar_plantilla
 from preguntas import PREGUNTAS_ISSUE, PREGUNTAS_PR
@@ -103,6 +106,29 @@ def aplicar_priores(respuesta, priores):
     probabilidades = {clase: peso / total for clase, peso in pesos.items()}
     eleccion = max(probabilidades, key=probabilidades.get)
     return {**respuesta, "choice": eleccion, "answer_confidence": probabilidades[eleccion], "probabilities": probabilidades}
+
+
+def ajustar_con_memoria(router, repo, items, cuerpos, tipos):
+    if not memoria_activada():
+        return tipos, ["off"] * len(tipos)
+    memoria = cargar_memoria(repo)
+    if memoria is None:
+        print("repo-memory está activado, pero todavía no hay memoria de este repo: corre el modo warm-cache")
+        return tipos, ["missing"] * len(tipos)
+    estados = ["not needed"] * len(tipos)
+    dudosos = [i for i, tipo in enumerate(tipos) if margen(tipo["probabilities"]) <= MARGEN_DUDA]
+    if not dudosos:
+        return tipos, estados
+    vectores = incrustador(router)([texto_issue(items[i]["title"], cuerpos[i]) for i in dudosos])
+    nuevos = list(tipos)
+    for i, vector in zip(dudosos, vectores):
+        voto = votar(memoria, vector, items[i]["number"])
+        if voto is None:
+            estados[i] = "too few neighbors"
+            continue
+        nuevos[i], _ = fusionar(tipos[i], voto)
+        estados[i] = "used"
+    return nuevos, estados
 
 
 def configuracion_del_repo(repo, token):
@@ -304,22 +330,27 @@ def triar_backlog(evento, rutas, priores, bases):
     router = Router(models=rutas, default="multilingual")
     resultados = router.predict_batch(peticiones, batch_size=8)
 
-    filas = []
-    etiquetados = 0
-    for issue, resultado in zip(issues, resultados):
+    tipos = []
+    for resultado in resultados:
         modelo = resultado["routing"]["model"]
         pesos = pesos_para_ruta(mezcla, priores.get(modelo), bases.get(modelo))
-        tipo = aplicar_priores(resultado["answers"]["tipo"], pesos)
+        tipos.append(aplicar_priores(resultado["answers"]["tipo"], pesos))
+    tipos, estados_memoria = ajustar_con_memoria(router, repo, issues, cuerpos, tipos)
+
+    filas = []
+    etiquetados = 0
+    for issue, tipo, estado_memoria in zip(issues, tipos, estados_memoria):
         confianza = tipo["answer_confidence"]
         if confianza >= UMBRAL_TIPO:
             etiqueta = nombres[tipo["choice"]]
-            filas.append((issue["number"], issue["title"], etiqueta, confianza))
+            decision = etiqueta + (" (repo memory)" if estado_memoria == "used" else "")
             etiquetados += 1
             if not modo_prueba:
                 aplicar_cambios(repo, issue["number"], [etiqueta], None)
         else:
-            filas.append((issue["number"], issue["title"], "left for a maintainer", confianza))
-        print(f"#{issue['number']}: {filas[-1][2]} ({confianza:.0%}) · {issue['title'][:70]}")
+            decision = "left for a maintainer"
+        filas.append((issue["number"], issue["title"], decision, confianza))
+        print(f"#{issue['number']}: {decision} ({confianza:.0%}) · {issue['title'][:70]}")
 
     print(f"{etiquetados} de {len(issues)} issues con confianza suficiente")
     print("Modo dry-run: no se aplicó ningún cambio" if modo_prueba else "Etiquetas aplicadas")
@@ -341,6 +372,7 @@ def main():
         triar_backlog(evento, rutas, priores, bases)
         return
 
+    estado_memoria = None
     if "pull_request" in evento:
         item = evento["pull_request"]
         cuerpo_util = limpiar_cuerpo(item.get("body"))
@@ -379,7 +411,10 @@ def main():
         resultado = router.predict(estado, PREGUNTAS_ISSUE)
         modelo = resultado["routing"]["model"]
         pesos = pesos_para_ruta(mezcla, priores.get(modelo), bases.get(modelo))
-        resultado["answers"]["tipo"] = aplicar_priores(resultado["answers"]["tipo"], pesos)
+        tipo = aplicar_priores(resultado["answers"]["tipo"], pesos)
+        tipos, estados_memoria = ajustar_con_memoria(router, repo, [item], [cuerpo_util], [tipo])
+        resultado["answers"]["tipo"] = tipos[0]
+        estado_memoria = estados_memoria[0]
         etiquetas, comentario = decidir_issue(resultado["answers"], cuerpo_util, nombres)
         tipo_item = "issue"
     else:
@@ -392,6 +427,7 @@ def main():
         "modelo": resultado["routing"]["model"],
         "lineas_plantilla": lineas_plantilla,
         "mezcla_repo": {t: round(v, 3) for t, v in mezcla.items()} if mezcla else None,
+        "memoria_repo": estado_memoria,
         "caracteres_utiles": len(cuerpo_util),
         "etiquetas": etiquetas,
         "comentario": comentario,
@@ -405,6 +441,8 @@ def main():
     modo_prueba = en_modo_prueba()
     confianza = resultado["answers"]["tipo"]["answer_confidence"] if tipo_item == "issue" else None
     decision = ", ".join(etiquetas) if etiquetas else "no changes"
+    if estado_memoria == "used":
+        decision += " (repo memory)"
     escribir_resumen(
         "new issue" if tipo_item == "issue" else "pull request",
         [(item["number"], item["title"], decision, confianza)],

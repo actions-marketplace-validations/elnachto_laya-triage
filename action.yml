@@ -33,6 +33,10 @@ inputs:
     description: "In 'backlog' mode, the maximum number of open issues to classify, newest first (up to 500)"
     required: false
     default: "100"
+  repo-memory:
+    description: "Experimental. When 'true', uncertain decisions also look at the most similar closed issues of your repository. Set it in both the triage and the warm-cache workflows"
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -68,6 +72,13 @@ runs:
         path: ~/.cache/huggingface
         key: laya-triage-models-9596364-6c2dad2
 
+    - if: inputs.mode != 'warm-cache' && inputs.repo-memory == 'true'
+      uses: actions/cache/restore@v6
+      with:
+        path: ~/.cache/laya-triage
+        key: laya-triage-memory-${{ github.run_id }}
+        restore-keys: laya-triage-memory-
+
     - name: Install dependencies
       if: steps.venv-save.outputs.cache-hit != 'true' && steps.venv-restore.outputs.cache-hit != 'true'
       shell: bash
@@ -81,6 +92,19 @@ runs:
       shell: bash
       run: '"$HOME/laya-venv/bin/python" "${{ github.action_path }}/modelos.py"'
 
+    - name: Build repo memory
+      if: inputs.mode == 'warm-cache' && inputs.repo-memory == 'true'
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: '"$HOME/laya-venv/bin/python" "${{ github.action_path }}/memoria.py"'
+
+    - if: inputs.mode == 'warm-cache' && inputs.repo-memory == 'true'
+      uses: actions/cache/save@v6
+      with:
+        path: ~/.cache/laya-triage
+        key: laya-triage-memory-${{ github.run_id }}
+
     - name: Run triage
       if: inputs.mode != 'warm-cache'
       shell: bash
@@ -92,4 +116,5 @@ runs:
         LAYA_CLASS_PRIORS: ${{ inputs.class-priors }}
         LAYA_LABELS: ${{ inputs.labels }}
         LAYA_BACKLOG_LIMIT: ${{ inputs.backlog-limit }}
+        LAYA_REPO_MEMORY: ${{ inputs.repo-memory }}
       run: '"$HOME/laya-venv/bin/python" "${{ github.action_path }}/triage.py"'

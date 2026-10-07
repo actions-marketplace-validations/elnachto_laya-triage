@@ -1,0 +1,11 @@
+{
+  "issue": {
+    "number": 999999999,
+    "title": "How can I change the default shell in the integrated terminal?",
+    "body": "I want the integrated terminal to open Git Bash instead of PowerShell by default. Where is that setting?",
+    "labels": []
+  },
+  "repository": {
+    "full_name": "microsoft/vscode"
+  }
+}
