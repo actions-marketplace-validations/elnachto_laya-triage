@@ -14,9 +14,7 @@
 </p>
 
 
-
-https://github.com/user-attachments/assets/a929519a-85ff-467b-9dc3-f49538046d64
-
+https://github.com/user-attachments/assets/6b7c3431-e154-484a-b619-1c74c3bb13ea
 
 
 Free, local AI triage for GitHub issues.
@@ -52,6 +50,12 @@ laya-triage never closes issues or pull requests. Maintainers keep full control 
 </p>
 
 ## Quick start
+
+Prefer to watch? This one-minute video walk trough the whole setup:
+
+
+https://github.com/user-attachments/assets/14b9890c-d37d-496c-909b-7a34245a47ed
+
 
 Create `.github/workflows/triage.yml` in your repository:
 
